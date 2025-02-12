@@ -7,6 +7,13 @@ import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
 
 const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
 
+const App = () => (
+    <h1>Hello</h1>
+);
+   
+   const root = createRoot(document.getElementById('app'));
+   root.render(<App />);
+
 createInertiaApp({
     title: (title) => `${title} - ${appName}`,
     resolve: (name) => resolvePageComponent(`./Pages/${name}.jsx`, import.meta.glob('./Pages/**/*.jsx')),
@@ -19,3 +26,5 @@ createInertiaApp({
         color: '#4B5563',
     },
 });
+
+export default App;
