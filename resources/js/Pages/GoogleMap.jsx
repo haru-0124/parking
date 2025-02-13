@@ -3,6 +3,8 @@ import { useEffect, useState } from "react";
 import {
   APIProvider,
   Map,
+  AdvancedMarker,
+  Pin
 } from "@vis.gl/react-google-maps";
 
 const MyMap = () => {
@@ -46,14 +48,20 @@ const MyMap = () => {
           style={{ width: "100%", height: "500px" }} // 幅100%、高さ500px
           defaultZoom={13}
           defaultCenter={location}
+          mapId={import.meta.env.VITE_GOOGLE_MAPS_ID}
           onCameraChanged={(ev) =>
             console.log("camera changed:", ev.detail.center, "zoom:", ev.detail.zoom)
           }
-          />
+          >
+            <AdvancedMarker key={`${location.lat}-${location.lng}`} position={location}>
+              <Pin background={"#FBBC04"} glyphColor={"#000"} borderColor={"#000"} />
+            </AdvancedMarker>
+          </Map>
+
         ) : (
           <h2>位置情報を取得中...</h2>
         )
-      )}
+      )} 
 
     </APIProvider>
   );
