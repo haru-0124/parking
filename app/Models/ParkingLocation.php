@@ -9,6 +9,10 @@ class ParkingLocation extends Model
 {
     use HasFactory;
 
+    protected $fillable = [
+        "latitude",
+        "longitude"
+    ];
     public function parking_records()   
     {
         return $this->hasMany(ParkingRecord::class);  
