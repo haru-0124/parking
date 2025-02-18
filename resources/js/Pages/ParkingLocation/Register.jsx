@@ -7,14 +7,15 @@ const Register = (props) => {
     const {data, setData, post} = useForm({
         latitude: 0.0,
         longitude: 0.0,
-        type_id: types[0].id,
+        parking_types_id: '',
     })
 
     const handleSendLocations = (e) => {
         e.preventDefault();
-        post("/");
+        post("/locations");
     }
 
+    console.log(data);
     return (
             <Authenticated user={props.auth.user} header={
                     <h2 className="font-semibold text-xl text-gray-800 leading-tight">
@@ -37,7 +38,8 @@ const Register = (props) => {
 
                         <div>
                             <h2>ParkingType</h2>
-                            <select onChange={e => setData("type_id", e.target.value)}>
+                            <select onChange={e => setData("parking_types_id", e.target.value)}>
+                                <option value="">選択しない</option>
                                 {types.map((type) => (
                                     <option value={type.id}>{type.name}</option>
                                 ))}
@@ -46,8 +48,7 @@ const Register = (props) => {
 
                         <button type="submit" className="p-1 bg-purple-300 haver:bg-purple-400 rounded-md">send</button>
                     </form>
-
-                    <Link href="/">戻る</Link>
+                    <Link href="/locations">戻る</Link>
                 </div>
 
             </Authenticated>

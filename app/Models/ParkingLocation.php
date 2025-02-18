@@ -11,7 +11,8 @@ class ParkingLocation extends Model
 
     protected $fillable = [
         "latitude",
-        "longitude"
+        "longitude",
+        "parking_types_id"
     ];
     public function parking_records()   
     {
@@ -25,6 +26,6 @@ class ParkingLocation extends Model
 
     public function parking_type()
     {
-        return $this->belongsTo(ParkingType::class);
+        return $this->belongsTo(ParkingType::class, 'parking_types_id');
     }
 }

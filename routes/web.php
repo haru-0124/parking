@@ -18,7 +18,7 @@ use Inertia\Inertia;
 */
 
 Route::get('/', function () {
-    return Inertia::render('GoogleMap', [
+    return Inertia::render('Welcome', [
         'canLogin' => Route::has('login'),
         'canRegister' => Route::has('register'),
         'laravelVersion' => Application::VERSION,
@@ -37,8 +37,13 @@ Route::middleware('auth')->group(function () {
 });
 
 Route::middleware('auth')->group(function () {
-    Route::get('/register_parking', [ParkingLocationController::class, 'register']);
-    Route::post('/', [ParkingLocationController::class, 'store']);
+    Route::get('/locations', [ParkingLocationController::class, 'index']);
+    Route::get('/locations/register', [ParkingLocationController::class, 'register']);
+    Route::get('/locations/{location}', [ParkingLocationController::class, "show"]);
+    Route::get('/locations/{location}/edit', [ParkingLocationController::class, "edit"]);
+    Route::put('/locations/{location}', [ParkingLocationController::class, "update"]);
+    Route::post('/locations', [ParkingLocationController::class, 'store']);
+    Route::delete("/locations/{location}", [ParkingLocationController::class, "delete"]);
 });
 
 require __DIR__.'/auth.php';
