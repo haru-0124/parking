@@ -14,12 +14,6 @@ const Index = (props) => {
   const [location, setLocation] = useState(null);
   const [error, setError] = useState(null);
   
-  const handleDeleteLocation = (id) => {
-    router.delete(`/locations/${id}`, {
-        onBefore: () => confirm("本当に削除しますか？"),
-    });
-  };
-
   useEffect(() => {
     if (!navigator.geolocation) {
       setError("お使いのブラウザから位置情報を入手できませんでした。");
@@ -43,6 +37,7 @@ const Index = (props) => {
       navigator.geolocation.clearWatch(watchId);
     };
   }, []);
+  console.log("駐車場データ:", locations);
 
   return (
     <Authenticated user={props.auth.user} header={
@@ -67,40 +62,30 @@ const Index = (props) => {
                 console.log("camera changed:", ev.detail.center, "zoom:", ev.detail.zoom)
               }
             >
-              <AdvancedMarker key={`${location.lat}-${location.lng}`} position={location}>
-                <Pin background={"#FBBC04"} glyphColor={"#000"} borderColor={"#000"} />
-              </AdvancedMarker>
+              {location && (
+                <AdvancedMarker key="current-location" position={location}>
+                  <Pin background={"#FBBC04"} glyphColor={"#000"} borderColor={"#000"} />
+                </AdvancedMarker>
+              )}
+              
+              {locations.map((parking) => (
+                <AdvancedMarker
+                  key={parking.id}
+                  position={{ lat: parking.latitude, lng: parking.longitude}}
+                  onClick={() => router.visit(`/locations/${parking.id}`)} 
+                >
+                  <Pin background={"#4285F4"} glyphColor={"#fff"} borderColor={"#000"}/>
+                </AdvancedMarker>
+              ))}
             </Map>
           ) : (
             <h2>位置情報を取得中...</h2>
           )
         )}
       </APIProvider>
-
-      <div className="p-12">
-        <Link href={`/locations/register`}>register</Link>
-        <h1>ID</h1>
-        {locations.map((location) => {
-          console.log(location); // デバッグ用のログ
-          return (
-            <div key={location.id}> {/* ここで key を追加 */}
-              <h2>
-                <Link href={`/locations/${location.id}`}>{location.id}</Link>
-              </h2>
-              <p>緯度 {location.latitude}</p>
-              <p>経度 {location.longitude}</p>
-              <p>種類 {location.parking_type?.name ?? "未登録"}</p>
-              <button 
-                className="p-1 bg-purple-300 hover:bg-purple-400 rounded-md" 
-                onClick={() => handleDeleteLocation(location.id)}
-              >
-                delete
-              </button>
-            </div>
-          );
-        })}
-
-      </div>
+    <div>
+      <Link href="/locations/register">register</Link>
+    </div>
     </Authenticated>
   );
 };

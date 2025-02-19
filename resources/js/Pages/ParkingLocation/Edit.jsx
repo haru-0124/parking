@@ -28,13 +28,13 @@ const Edit = (props) => {
                 <form onSubmit={handleSendLocations}>
                     <div>
                         <h2>latitude</h2>
-                        <input type="number" placeholder="緯度" value={data.latitude} onChange={(e) => setData("latitude", parseFloat(e.target.value) || 0)}/>
+                        <input type="number" step="0.01" placeholder="緯度" value={data.latitude} onChange={(e) => setData("latitude", parseFloat(e.target.value) || 0)}/>
                         <span className="text-red-600">{props.errors.title}</span>
                     </div>                    
                     
                     <div>
                         <h2>longitude</h2>
-                        <input type="number" placeholder="経度" value={data.longitude} onChange={(e) => setData("longitude", parseFloat(e.target.value) || 0)}/>
+                        <input type="number" step="0.01" placeholder="経度" value={data.longitude} onChange={(e) => setData("longitude", parseFloat(e.target.value) || 0)}/>
                         <span className="text-red-600">{props.errors.body}</span>
                     </div>
                     

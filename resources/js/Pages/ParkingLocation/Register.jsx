@@ -28,12 +28,12 @@ const Register = (props) => {
                     <form onSubmit={handleSendLocations}>
                         <div>
                             <h2>Latitude</h2>
-                            <input type="number" placeholder="緯度" onChange={(e) => setData("latitude", parseFloat(e.target.value) || 0)}/>
+                            <input type="number" step="0.01" placeholder="緯度" onChange={(e) => setData("latitude", parseFloat(e.target.value) || 0)}/>
                         </div>                    
 
                         <div>
                             <h2>Longitude</h2>
-                            <input type="number" placeholder="経度" onChange={(e) => setData("longitude", parseFloat(e.target.value) || 0)}/>
+                            <input type="number" step="0.01" placeholder="経度" onChange={(e) => setData("longitude", parseFloat(e.target.value) || 0)}/>
                         </div>
 
                         <div>
