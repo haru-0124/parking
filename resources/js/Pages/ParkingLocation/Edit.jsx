@@ -16,7 +16,7 @@ const Edit = (props) => {
         put(`/locations/${location.id}`);
     }
 
-    console.log(data);
+    console.log(props);
     return (
         <Authenticated user={props.auth.user} header={
                 <h2 className="font-semibold text-xl text-gray-800 leading-tight">
@@ -39,13 +39,36 @@ const Edit = (props) => {
                     </div>
                     
                     <div>
-                        <h2>ParkingType</h2>
-                        <select onChange={e => setData("parking_types_id", e.target.value)}>
-                            <option value="">選択しない</option>
-                            {types.map((type) => (
-                                <option value={type.id}>{type.name}</option>
-                            ))}
-                        </select>
+                    <h2>ParkingType</h2>
+                    <select onChange={e => setData("parking_types_id", e.target.value)} value={data.parking_types_id || ""}>
+                        {location.parking_types_id ? (
+                            <>
+                                <option value={location.parking_types_id} disabled>
+                                    {location.parking_type.name}
+                                </option>
+                                {types.map((type) => (
+                                    type.id !== location.parking_types_id && (
+                                        <option key={type.id} value={type.id}>
+                                            {type.name}
+                                        </option>
+                                    )
+                                ))}
+                                <option value="">選択しない</option>
+                            </>
+                        ) : (
+                            <>
+                                <option value="" disabled>
+                                    選択しない
+                                </option>
+                                {types.map((type) => (
+                                    <option key={type.id} value={type.id}>
+                                        {type.name}
+                                    </option>
+                                ))}
+                            </>
+                        )}
+                    </select>
+
                     </div>
                     <button type="submit" className="p-1 bg-purple-300 hover:bg-purple-400 rounded-md">send</button>
                 </form>
