@@ -9,6 +9,8 @@ class ParkingRecord extends Model
 {
     use HasFactory;
 
+    protected $fillable = ['user_id', 'parking_location_id'];
+    
     public function user()
     {
         return $this->belongsTo(User::class);
