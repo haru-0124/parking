@@ -8,7 +8,7 @@ const Edit = (props) => {
     const {data, setData, put} = useForm({
         latitude: location.latitude,
         longitude: location.longitude,
-        parking_types_id: location.parking_types_id
+        parking_type_id: location.parking_type_id
     })
 
     const handleSendLocations = (e) => {
@@ -40,14 +40,14 @@ const Edit = (props) => {
                     
                     <div>
                     <h2>ParkingType</h2>
-                    <select onChange={e => setData("parking_types_id", e.target.value)} value={data.parking_types_id || ""}>
-                        {location.parking_types_id ? (
+                    <select onChange={e => setData("parking_type_id", e.target.value)} value={data.parking_type_id || ""}>
+                        {location.parking_type_id ? (
                             <>
-                                <option value={location.parking_types_id} disabled>
+                                <option value={location.parking_type_id} disabled>
                                     {location.parking_type.name}
                                 </option>
                                 {types.map((type) => (
-                                    type.id !== location.parking_types_id && (
+                                    type.id !== location.parking_type_id && (
                                         <option key={type.id} value={type.id}>
                                             {type.name}
                                         </option>

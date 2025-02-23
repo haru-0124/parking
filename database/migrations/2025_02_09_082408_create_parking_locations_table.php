@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->double('latitude', 9, 6);
             $table->double('longitude', 9, 6);
-            $table->foreignId('parking_types_id')->nullable()->constrained();
+            $table->foreignId('parking_type_id')->nullable()->constrained("parking_types");
             $table->timestamps();
         });
     }

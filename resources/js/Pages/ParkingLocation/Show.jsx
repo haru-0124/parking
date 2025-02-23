@@ -48,6 +48,14 @@ const Show = (props) => {
                 </div>
 
                 <div>
+                    <Link href={`/locations/${location.id}/basicfees`}>基本料金を表示</Link>
+                </div>
+
+                <div>
+                    <Link href={`/locations/${location.id}/basicfees/register`}>基本料金を設定</Link>
+                </div>
+
+                <div>
                     <button
                         className="p-1 bg-purple-300 hover:bg-purple-400 rounded-md"
                         onClick={() =>
