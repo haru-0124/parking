@@ -12,20 +12,25 @@ class ParkingLocation extends Model
     protected $fillable = [
         "latitude",
         "longitude",
-        "parking_types_id"
+        "parking_type_id"
     ];
-    public function parking_records()   
+
+    public function getByLocation()
+    {
+        return $this->basic_fees()->with('parking_location')->orderBy('updated_at', 'DESC')->get();
+    }
+    public function parking_records()
     {
         return $this->hasMany(ParkingRecord::class);  
     }
 
-    public function parking_fees()   
-    {
-        return $this->hasMany(ParkingFee::class);  
-    }
-
     public function parking_type()
     {
-        return $this->belongsTo(ParkingType::class, 'parking_types_id');
+        return $this->belongsTo(ParkingType::class);
+    }
+
+    public function basic_fees()
+    {
+        return $this->hasMany(BasicFee::class);
     }
 }

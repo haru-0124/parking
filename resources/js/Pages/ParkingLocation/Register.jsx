@@ -7,7 +7,7 @@ const Register = (props) => {
     const {data, setData, post} = useForm({
         latitude: 0.0,
         longitude: 0.0,
-        parking_types_id: '',
+        parking_type_id: '',
     })
 
     const handleSendLocations = (e) => {
@@ -38,10 +38,10 @@ const Register = (props) => {
 
                         <div>
                             <h2>ParkingType</h2>
-                            <select onChange={e => setData("parking_types_id", e.target.value)}>
+                            <select onChange={e => setData("parking_type_id", e.target.value)}>
                                 <option value="">選択しない</option>
                                 {types.map((type) => (
-                                    <option value={type.id}>{type.name}</option>
+                                    <option key={type.id} value={type.id}>{type.name}</option>
                                 ))}
                             </select>
                         </div>

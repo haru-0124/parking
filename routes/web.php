@@ -3,6 +3,7 @@
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ParkingLocationController;
 use App\Http\Controllers\ParkingRecordController;
+use App\Http\Controllers\BasicFeeController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -39,14 +40,18 @@ Route::middleware('auth')->group(function () {
 
 Route::middleware('auth')->group(function () {
     Route::get('/locations', [ParkingLocationController::class, 'index']);
-    Route::get('/locations/register', [ParkingLocationController::class, 'register']);
-    Route::get('/locations/{location}', [ParkingLocationController::class, "show"])->name('locations.show'); // ← ここを追加
+    Route::get('/locations/register', [ParkingLocationController::class, 'create']);
+    Route::get('/locations/{location}', [ParkingLocationController::class, "show"])->name('locations.show');
+    Route::get('/locations/{location}/basicfees', [ParkingLocationController::class, "showBasicFees"]);
+    Route::get('/locations/{location}/basicfees/register', [ParkingLocationController::class, "createBasicFees"]);
     Route::get('/locations/{location}/edit', [ParkingLocationController::class, "edit"]);
     Route::put('/locations/{location}', [ParkingLocationController::class, "update"]);
     Route::post('/locations', [ParkingLocationController::class, 'store']);
     Route::post('/locations/{location}', [ParkingRecordController::class, 'store']);
+    Route::post('/locations/{location}/basicfees', [ParkingLocationController::class, 'storeBasicFee']);
     Route::delete("/locations/{location}", [ParkingLocationController::class, "destroy"]);
     Route::delete('/locations/{location}/unregister', [ParkingRecordController::class, 'destroy']);
+    Route::delete('/locations/{location}/basicfees/{basicfee}', [BasicFeeController::class, 'destroy']);
 });
 
 require __DIR__.'/auth.php';

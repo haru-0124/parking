@@ -16,7 +16,7 @@ class ParkingLocationController extends Controller
         return Inertia::render("ParkingLocation/Index",["locations" => ParkingLocation::with("parking_type")->get()]);
     }
 
-    public function register()
+    public function create()
     {
         return Inertia::render("ParkingLocation/Register", ["types" => ParkingType::all()]);
     }
@@ -36,7 +36,19 @@ class ParkingLocationController extends Controller
             'is_registered' => $is_registered,
         ]);
     }
-    
+
+    public function showBasicFees(ParkingLocation $location)
+    {
+        return Inertia::render("ParkingLocation/ShowBasicFees",["basic_fees" => $location->getByLocation()]);
+    }
+
+    public function createBasicFees(ParkingLocation $location)
+    {
+        return Inertia::render('ParkingLocation/CreateBasicFees', [
+            'location' => $location,
+        ]);
+    }
+
     public function edit(ParkingLocation $location)
     {
         return Inertia::render("ParkingLocation/Edit",["location" => $location->load('parking_type'), "types" => ParkingType::all()]);
@@ -54,6 +66,26 @@ class ParkingLocationController extends Controller
         $input = $request->all();
         $location->fill($input)->save(); 
         return redirect("/locations");
+    }
+
+    public function storeBasicFee(Request $request, ParkingLocation $location)
+    {
+        $request->validate([
+            'start_time' => 'required',
+            'end_time' => 'required',
+            'duration' => 'required|integer',
+            'fee' => 'required|integer',
+        ]);
+
+        $location->basic_fees()->create([
+            'start_time' => $request->start_time,
+            'end_time' => $request->end_time,
+            'duration' => $request->duration,
+            'fee' => $request->fee,
+        ]);
+
+        return redirect("/locations/{$location->id}/basicfees")
+            ->with('success', '基本料金が設定されました。');
     }
 
     public function destroy(ParkingLocation $location)
