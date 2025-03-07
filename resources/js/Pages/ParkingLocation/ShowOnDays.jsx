@@ -42,6 +42,10 @@ const ShowOnDays = (props) => {
                 <div>
                     <Link href={`/locations/${max_fees[0].parking_location_id}/mfods/register`}>基本料金を設定</Link>
                 </div>
+
+                <div>
+                    <Link href={`/locations/${max_fees[0].parking_location_id}`}>戻る</Link>
+                </div>
             </div>
         
         </Authenticated>

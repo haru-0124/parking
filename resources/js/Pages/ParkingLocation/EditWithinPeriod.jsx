@@ -1,6 +1,6 @@
 import React from "react";
 import Authenticated from "@/Layouts/AuthenticatedLayout";
-import { useForm } from "@inertiajs/react";
+import { Link, useForm } from "@inertiajs/react";
 
 const EditBasicFees = (props) => {
     const{max_fee} = props;
@@ -58,6 +58,10 @@ const EditBasicFees = (props) => {
                         更新
                     </button>
                 </form>
+
+                <div>
+                    <Link href={`/locations/${max_fee.parking_location_id}/mfwps`}>戻る</Link>
+                </div>
             </div>
         </Authenticated>
     )
