@@ -12,6 +12,7 @@ const Index = (props) => {
   const { locations } = props;
   const [location, setLocation] = useState(null);
   const [error, setError] = useState(null);
+  console.log(props)
   
   useEffect(() => {
     if (!navigator.geolocation) {
@@ -67,15 +68,27 @@ const Index = (props) => {
                 </AdvancedMarker>
               )}
               
-              {locations.map((parking) => (
-                <AdvancedMarker
-                  key={parking.id}
-                  position={{ lat: parking.latitude, lng: parking.longitude}}
-                  onClick={() => router.visit(`/locations/${parking.id}`)} 
-                >
-                  <Pin background={"#4285F4"} glyphColor={"#fff"} borderColor={"#000"}/>
-                </AdvancedMarker>
-              ))}
+              {locations.map((parking) => {
+                // 現在のユーザーがこの駐車場を登録しているかチェック
+                const isRegistered = (parking.parking_records ?? []).some(
+                  (record) => record.user_id === props.auth.user.id
+                );              
+
+                return (
+                  <AdvancedMarker
+                    key={parking.id}
+                    position={{ lat: parking.latitude, lng: parking.longitude }}
+                    onClick={() => router.visit(`/locations/${parking.id}`)} 
+                  >
+                    <Pin
+                      background={isRegistered ? "#34A853" : "#4285F4"} // 登録済みなら緑、未登録なら青
+                      glyphColor={"#fff"}
+                      borderColor={"#000"}
+                    />
+                  </AdvancedMarker>
+                );
+              })}
+
             </Map>
           ) : (
             <h2>位置情報を取得中...</h2>

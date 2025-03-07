@@ -20,7 +20,9 @@ class ParkingLocationController extends Controller
      */
     public function index()
     {
-        return Inertia::render("ParkingLocation/Index",["locations" => ParkingLocation::with("parking_type")->get()]);
+        return Inertia::render("ParkingLocation/Index", [
+            "locations" => ParkingLocation::with(["parking_type", "parking_records"])->get()
+        ]);
     }
 
     /**
@@ -145,12 +147,15 @@ class ParkingLocationController extends Controller
         $user = auth()->user();
         
         // 現在のユーザーがこの駐車場所に登録しているか確認
-        $is_registered = ParkingRecord::where('parking_location_id', $location->id)
+        $record = ParkingRecord::where('parking_location_id', $location->id)
                                       ->where('user_id', $user->id)
-                                      ->exists();
-    
-        return Inertia::render('ParkingLocation/Show', [
+                                      ->first();
+
+        $is_registered = !is_null($record);
+
+        return Inertia::render('ParkingLocation/Show2', [
             'location' => $location->load('parking_type'),
+            'record' => $record,
             'basic_fees' => $location->getByLocation(),
             'mfods' => $location->getByLocationOnDay(),
             'mfoets' => $location->getByLocationOnElapsedTime(),

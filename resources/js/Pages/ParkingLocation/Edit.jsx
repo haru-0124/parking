@@ -73,7 +73,7 @@ const Edit = (props) => {
                     <button type="submit" className="p-1 bg-purple-300 hover:bg-purple-400 rounded-md">send</button>
                 </form>
                 
-                <Link href="/locations">戻る</Link>
+                <Link href={`/locations/${location.id}`}>戻る</Link>
             </div>
             
         </Authenticated>

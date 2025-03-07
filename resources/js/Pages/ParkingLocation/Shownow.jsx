@@ -60,7 +60,7 @@ const Show = (props) => {
         const start = new Date(startTime);
         const end = new Date(endTime);
         const parkingTime = (end - start) / (1000 * 60 * 60);
-        console.log(parkingTime);
+        console.log(`駐車時間${parkingTime}`);
     
         if (start >= end) {
             alert("開始日時は終了日時より前でなければなりません");
@@ -68,83 +68,89 @@ const Show = (props) => {
         }
     
         let totalFee = 0;
-        console.log("適用する基本料金:", basic_fees);
+        let totalFeeOnDay = 0;
+        let totalFeeOnElapsedTime = 0;
+        let fragTime = 30;
+        let fragTotal = 0;
     
         let current = new Date(start);
+    
         while (current < end) {
-            let nextDay = new Date(current);
-            let totalFeeDay = 0;
-            nextDay.setHours(23, 59, 59, 999); // その日の終了
-            let dayEnd = nextDay < end ? nextDay : end; // ループの終了時間
+            let currentTime = current.toLocaleTimeString("ja-JP", { hour12: false });
+            let currentTimeInMinutes = parseInt(currentTime.slice(0, 2)) * 60 + parseInt(currentTime.slice(3, 5));
+            
+            console.log(new Date(current).toLocaleString("ja-JP", {
+                month: "numeric",
+                day: "numeric",
+                hour: "numeric",
+                minute: "numeric",
+                hour12: false
+              })); // ループごとにコピーして出力
+            current.setMinutes(current.getMinutes() + fragTime);
+            fragTotal += fragTime; // 入庫後時間制最大料金用
     
             basic_fees.forEach(fee => {
-                let periodStart = new Date(current);
-                let periodEnd = new Date(current);
-                let increment = 0
-    
-                [periodStart.setHours(...fee.start_time.split(':')), periodStart.setMinutes(0, 0, 0)];
-                [periodEnd.setHours(...fee.end_time.split(':')), periodEnd.setMinutes(0, 0, 0)];
-    
-                if (fee.start_time > fee.end_time) {  // 18:00~6:00 の場合
-                    let periodEndPart1 = new Date(current);
-                    periodEndPart1.setHours(23, 59, 59, 999);
-                    let periodStartPart2 = new Date(current);
-                    periodStartPart2.setHours(0, 0, 0, 0);
-                    let periodEndPart2 = new Date(periodStartPart2);
-                    periodEndPart2.setHours(...fee.end_time.split(':'));
-                    periodEndPart2.setMinutes(0, 0, 0);
-                    let overlapMinutes = 0;
-    
-                    // 18:00~24:00 の計算
-                    if (current < periodEndPart1 && dayEnd > periodStart) {
-                        let overlapStart = current > periodStart ? current : periodStart;
-                        let overlapEnd = dayEnd < periodEndPart1 ? dayEnd : periodEndPart1;
-                        overlapMinutes += (overlapEnd - overlapStart) / (1000 * 60);
+                let startTimeInMinutes = parseInt(fee.start_time.slice(0, 2)) * 60 + parseInt(fee.start_time.slice(3, 5));
+                let endTimeInMinutes = parseInt(fee.end_time.slice(0, 2)) * 60 + parseInt(fee.end_time.slice(3, 5));
+                if (fee.start_time < fee.end_time) {
+                    if (currentTimeInMinutes >= startTimeInMinutes && currentTimeInMinutes < endTimeInMinutes) {
+                        totalFee += fee.fee;
+                        totalFeeOnElapsedTime += fee.fee;
+                        totalFeeOnDay += fee.fee;
                     }
-    
-                    // 0:00~6:00 の計算
-                    if (current < periodEndPart2 && dayEnd > periodStartPart2) {
-                        let overlapStart = current > periodStartPart2 ? current : periodStartPart2;
-                        let overlapEnd = dayEnd < periodEndPart2 ? dayEnd : periodEndPart2;
-                        overlapMinutes += (overlapEnd - overlapStart) / (1000 * 60);
-                    }
-
-                    increment = Math.ceil(overlapMinutes / fee.duration) * fee.fee;
-                    totalFeeDay += increment
-                    console.log(`基本料金 (18:00~06:00) - ${increment}円`);
                 } else {
-                    if (current < periodEnd && dayEnd > periodStart) {
-                        let overlapStart = current > periodStart ? current : periodStart;
-                        let overlapEnd = dayEnd < periodEnd ? dayEnd : periodEnd;
-                        let overlapMinutes = (overlapEnd - overlapStart) / (1000 * 60);
-                        increment = Math.ceil(overlapMinutes / fee.duration) * fee.fee;
-                        
-                        totalFeeDay += increment
-                        console.log(`基本料金 (6:00~18:00) - ${increment}円`);
+                    if (currentTimeInMinutes >= startTimeInMinutes || currentTimeInMinutes < endTimeInMinutes) {
+                        totalFee += fee.fee;
+                        totalFeeOnElapsedTime += fee.fee;
+                        totalFeeOnDay += fee.fee;
                     }
                 }
             });
     
             mfods.forEach(fee => {
-                if (totalFeeDay > fee.max_fee) {
-                    totalFee += fee.max_fee
-                    console.log(`当日最大料金: ${fee.max_fee}`);
-                } else{
-                    totalFee += totalFeeDay
+                let daychange = new Date(current);
+                daychange.setHours(0, fragTime);
+                if (current < daychange) {
+                    console.log(`当日最大料金確認${totalFeeOnDay}`);
+                    if (totalFeeOnDay > fee.max_fee) {
+                        console.log(`当日最大料金適用による差額${totalFeeOnDay - fee.max_fee}`);
+                        totalFee -= totalFeeOnDay - fee.max_fee;
+                        totalFeeOnDay = 0;
+                        if (totalFeeOnElapsedTime > fee.max_fee) {
+                            totalFeeOnElapsedTime -= totalFeeOnDay - fee.max_fee
+                        }
+                    }
                 }
             });
     
-            current.setDate(current.getDate() + 1);
-            current.setHours(0, 0, 0, 0);
+            mfoets.forEach(fee => {
+                if (fragTotal >= 60 * fee.limit_time) {
+                    console.log(`入庫後時間制最大料金確認${totalFeeOnElapsedTime}`);
+                    if (totalFeeOnElapsedTime > fee.max_fee) {
+                        console.log(`入庫後時間制最大料金適用による差額${totalFeeOnElapsedTime - fee.max_fee}`);
+                        totalFee -= totalFeeOnElapsedTime - fee.max_fee;
+                        fragTotal = 0;
+                        totalFeeOnElapsedTime = 0;
+                    }
+                }
+            });
+            console.log(`料金${totalFee}`)
+
+            {/*mfwps.forEach(fee => {
+                if fee.
+            })*/}
         }
     
-        setCalculatedFee(totalFee);
-        console.log(`最終料金: ${totalFee} 円`);
+        setCalculatedFee(totalFee); // 計算結果を状態に保存
     };
     
     
     return (
-        <Authenticated user={auth.user}>
+        <Authenticated user={auth.user} header={
+                <h2 className="font-semibold text-xl text-gray-800 leading-tight">
+                    駐車場の登録
+                </h2>
+            }>
             <div className="p-12">
                 <p>緯度 {location.latitude}</p>
                 <p>経度 {location.longitude}</p>
