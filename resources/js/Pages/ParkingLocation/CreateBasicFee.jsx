@@ -8,6 +8,7 @@ const SettingBasicFees = (props) => {
         end_time: '',
         duration: '',
         fee: '',
+        max_fee: null,
     });
 
     const{location} = props;
@@ -64,6 +65,17 @@ const SettingBasicFees = (props) => {
                         />
                         {errors.fee && <div>{errors.fee}</div>}
                     </div>
+
+                    <div>
+                        <label>最大料金(円・空欄可)</label>
+                        <input
+                            type="number"
+                            value={data.max_fee ?? ''}
+                            onChange={e => setData('max_fee', e.target.value === '' ? null : e.target.value)}
+                        />
+                        {errors.max_fee && <div>{errors.max_fee}</div>}
+                    </div>
+
 
                     <button type="submit">
                         料金を設定

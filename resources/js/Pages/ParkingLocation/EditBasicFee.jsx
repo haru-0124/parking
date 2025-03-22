@@ -9,6 +9,7 @@ const EditBasicFee = (props) => {
         end_time: basic_fee.end_time,
         duration: basic_fee.duration,
         fee: basic_fee.fee,
+        max_fee: basic_fee.max_fee,
     });
 
     const handleSubmit = (e) => {
@@ -66,6 +67,16 @@ const EditBasicFee = (props) => {
                             className="border p-2"
                         />
                         {errors.fee && <p className="text-red-500">{errors.fee}</p>}
+                    </div>
+
+                    <div>
+                        <label>最大料金(円・空欄可)</label>
+                        <input
+                            type="number"
+                            value={data.max_fee ?? ''}
+                            onChange={e => setData('max_fee', e.target.value === '' ? null : e.target.value)}
+                        />
+                        {errors.max_fee && <div>{errors.max_fee}</div>}
                     </div>
 
                     <button type="submit" className="bg-blue-500 text-white px-4 py-2 rounded mt-4" disabled={processing}>

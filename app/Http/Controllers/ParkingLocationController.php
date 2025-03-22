@@ -54,13 +54,6 @@ class ParkingLocationController extends Controller
         ]);
     }
 
-    public function createWithinPeriod(ParkingLocation $location)
-    {
-        return Inertia::render('ParkingLocation/CreateWithinPeriod', [
-            'location' => $location,
-        ]);
-    }
-
     /**
      * Store a newly created resource in storage.
      */
@@ -78,6 +71,7 @@ class ParkingLocationController extends Controller
             'end_time' => 'required',
             'duration' => 'required|integer',
             'fee' => 'required|integer',
+            'max_fee' => 'integer',
         ]);
 
         $location->basic_fees()->create([
@@ -85,6 +79,7 @@ class ParkingLocationController extends Controller
             'end_time' => $request->end_time,
             'duration' => $request->duration,
             'fee' => $request->fee,
+            'max_fee' => $request->max_fee,
         ]);
 
         return redirect("/locations/{$location->id}/basicfees")
@@ -121,24 +116,6 @@ class ParkingLocationController extends Controller
             ->with('success', '最大料金が編集されました。');
     }
 
-    public function storeWithinPeriod(Request $request, ParkingLocation $location)
-    {
-        $request->validate([
-            'max_fee' => 'required',
-            'start_time' => 'required',
-            'end_time' => 'required',
-        ]);
-
-        $location->max_fee_within_periods()->create([
-            'max_fee' => $request->max_fee,
-            'start_time' => $request->start_time,
-            'end_time' => $request->end_time,
-        ]);
-
-        return redirect("/locations/{$location->id}/mfwps")
-            ->with('success', '最大料金が編集されました。');
-    }
-
     /**
      * Display the specified resource.
      */
@@ -167,22 +144,23 @@ class ParkingLocationController extends Controller
 
     public function showBasicFees(ParkingLocation $location)
     {
-        return Inertia::render("ParkingLocation/ShowBasicFees",["basic_fees" => $location->getByLocation()]);
+        $basicFees = $location->getByLocation() ?? [];
+
+        return Inertia::render("ParkingLocation/ShowBasicFees",["basic_fees" => $basicFees, "location" => $location]);
     }
 
     public function showOnDays(ParkingLocation $location)
     {
-        return Inertia::render("ParkingLocation/ShowOnDays",["max_fees" => $location->getByLocationOnDay()]);
+        $maxFees = $location->getByLocationOnDay() ?? [];
+
+        return Inertia::render("ParkingLocation/ShowOnDays",["max_fees" => $maxFees, "location" => $location]);
     }
 
     public function showOnElapsedTimes(ParkingLocation $location)
     {
-        return Inertia::render("ParkingLocation/ShowOnElapsedTimes",["max_fees" => $location->getByLocationOnElapsedTime()]);
-    }
+        $maxFees = $location->getByLocationOnElapsedTime() ?? [];
 
-    public function showWithinPeriods(ParkingLocation $location)
-    {
-        return Inertia::render("ParkingLocation/ShowWithinPeriods",["max_fees" => $location->getByLocationWithinPeriod()]);
+        return Inertia::render("ParkingLocation/ShowOnElapsedTimes",["max_fees" => $maxFees, "location" => $location]);
     }
 
     /**
@@ -208,10 +186,6 @@ class ParkingLocationController extends Controller
         return Inertia::render('ParkingLocation/EditOnElapsedTime', ['max_fee' => $mfoet]);
     }
 
-    public function editWithinPeriod(ParkingLocation $location, MaxFeeWithinPeriod $mfwp)
-    {
-        return Inertia::render('ParkingLocation/EditWithinPeriod', ['max_fee' => $mfwp]);
-    }
     /**
      * Update the specified resource in storage.
      */
@@ -229,9 +203,10 @@ class ParkingLocationController extends Controller
             'end_time' => 'required',
             'duration' => 'required|integer',
             'fee' => 'required|integer',
+            'max_fee' => 'integer'
         ]);
 
-        $basicfee->update($request->only(['start_time', 'end_time', 'duration', 'fee']));
+        $basicfee->update($request->only(['start_time', 'end_time', 'duration', 'fee', 'max_fee']));
 
         return redirect("/locations/{$location->id}/basicfees")
         ->with('success', '基本料金が設定されました。');
@@ -259,20 +234,6 @@ class ParkingLocationController extends Controller
         $mfoet->update($request->only(['max_fee', 'limit_time']));
 
         return redirect("/locations/{$location->id}/mfoets")
-        ->with('success', '基本料金が設定されました。');
-    }
-
-    public function updateWithinPeriod(Request $request, ParkingLocation $location, MaxFeeWithinPeriod $mfwp)
-    {
-        $request->validate([
-            'max_fee' => 'required|integer',
-            'start_time' => 'required',
-            'end_time' => 'required',
-        ]);
-
-        $mfwp->update($request->only(['max_fee', 'start_time', 'end_time']));
-
-        return redirect("/locations/{$location->id}/mfwps")
         ->with('success', '基本料金が設定されました。');
     }
 

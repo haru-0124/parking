@@ -13,7 +13,8 @@ class BasicFee extends Model
         "start_time",
         "end_time",
         "duration",
-        "fee"
+        "fee",
+        "max_fee",
     ];
 
     public function parking_location()
