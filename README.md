@@ -1,66 +1,83 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# 🚗 駐車料金通知アプリ README
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+---
 
-## About Laravel
+## 📌 アプリ概要
+このアプリは、自分が駐車した駐車場を登録すると、その時点での料金を自動計算し通知するアプリです。  
+駐車場ごとに異なる料金体系に対応し、時間帯ごとの料金や最大料金の設定にも対応しています。
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+---
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## 🔥 主な機能
+- **駐車場の登録**  
+  - 駐車場の場所、料金体系（時間帯ごとの料金や最大料金）を登録可能  
+- **駐車料金の計算**  
+  - 駐車開始時点での料金をリアルタイムで通知  
+  - 時間帯ごとの料金や最大料金を考慮した正確な計算  
+- **駐車履歴の表示**  
+  - 過去の駐車履歴と料金を確認可能  
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+---
 
-## Learning Laravel
+## ⚙️ 使用技術
+- **バックエンド:** PHP（Docker 環境）  
+- **データベース:** MySQL  
+- **フロントエンド:** HTML / CSS / JavaScript  
+- **計算ロジック:**  
+  - 時間帯ごとの料金計算  
+  - 最大料金の適用  
+  - 複数時間帯にまたがる駐車の料金計算  
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+---
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+## 🚀 インストール手順
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+1. **リポジトリをクローン**
+    ```bash
+    git clone <リポジトリURL>
+    cd <リポジトリ名>
+    ```
 
-## Laravel Sponsors
+2. **Dockerコンテナを起動**
+    ```bash
+    docker-compose up -d
+    ```
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+3. **環境変数を設定**
+    - `.env`ファイルを作成し、以下の内容を記載
+    ```env
+    DB_HOST=db
+    DB_USER=root
+    DB_PASSWORD=your_password
+    DB_NAME=parking_app
+    ```
 
-### Premium Partners
+4. **データベースのマイグレーションと初期データ投入**
+    ```bash
+    docker exec -it <コンテナ名> php artisan migrate --seed
+    ```
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[WebReinvent](https://webreinvent.com/)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Jump24](https://jump24.co.uk)**
-- **[Redberry](https://redberry.international/laravel/)**
-- **[Active Logic](https://activelogic.com)**
-- **[byte5](https://byte5.de)**
-- **[OP.GG](https://op.gg)**
+---
 
-## Contributing
+## 🛠️ 使い方
+1. アプリにアクセスし、駐車場を登録  
+2. 駐車開始時に「駐車する」ボタンを押下  
+3. 現時点での料金が表示される  
+4. 駐車終了時に「精算する」を押下すると合計料金が表示  
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+---
 
-## Code of Conduct
+## ✅ 今後の改良予定
+- 駐車場の地図表示とクリック登録  
+- 駐車券をQRコードで読み取り登録  
+- ユーザーごとの履歴管理とレポート出力  
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+---
 
-## Security Vulnerabilities
+## 💬 ライセンス
+MIT License  
+自由にご利用・改変いただけます。
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+---
 
-## License
-
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+✨ ご利用ありがとうございます！フィードバックや改善案があればお気軽にご連絡ください！
