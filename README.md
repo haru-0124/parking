@@ -34,8 +34,8 @@
 
 1. **リポジトリをクローン**
     ```bash
-    git clone <リポジトリURL>
-    cd <リポジトリ名>
+    git clone https://github.com/haru-0124/parking
+    cd parking
     ```
 
 2. **Dockerコンテナを起動**
@@ -46,15 +46,15 @@
 3. **環境変数を設定**
     - `.env`ファイルを作成し、以下の内容を記載
     ```env
-    DB_HOST=db
-    DB_USER=root
-    DB_PASSWORD=your_password
-    DB_NAME=parking_app
+    DB_HOST=portfolio_mysql  # コンテナ名を指定
+    DB_USER=dbuser
+    DB_PASSWORD=pass1234
+    DB_NAME=test
     ```
 
 4. **データベースのマイグレーションと初期データ投入**
     ```bash
-    docker exec -it <コンテナ名> php artisan migrate --seed
+    docker exec -it portfolio_app php artisan migrate --seed
     ```
 
 ---
@@ -67,15 +67,8 @@
 
 ---
 
-## ✅ 今後の改良予定
-- 駐車場の地図表示とクリック登録  
-- 駐車券をQRコードで読み取り登録  
-- ユーザーごとの履歴管理とレポート出力  
-
----
-
 ## 💬 ライセンス
-MIT License  
+本プロジェクトは [MIT License](./LICENSE) のもとで公開されています。  
 自由にご利用・改変いただけます。
 
 ---
