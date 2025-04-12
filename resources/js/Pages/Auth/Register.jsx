@@ -12,6 +12,8 @@ export default function Register() {
         email: '',
         password: '',
         password_confirmation: '',
+        about_car: '',
+        car_number: '',
     });
 
     useEffect(() => {
@@ -22,7 +24,6 @@ export default function Register() {
 
     const submit = (e) => {
         e.preventDefault();
-
         post(route('register'));
     };
 
@@ -31,6 +32,7 @@ export default function Register() {
             <Head title="Register" />
 
             <form onSubmit={submit}>
+                {/* 名前 */}
                 <div>
                     <InputLabel htmlFor="name" value="Name" />
 
@@ -48,6 +50,7 @@ export default function Register() {
                     <InputError message={errors.name} className="mt-2" />
                 </div>
 
+                {/* メール */}
                 <div className="mt-4">
                     <InputLabel htmlFor="email" value="Email" />
 
@@ -65,6 +68,7 @@ export default function Register() {
                     <InputError message={errors.email} className="mt-2" />
                 </div>
 
+                {/* パスワード */}
                 <div className="mt-4">
                     <InputLabel htmlFor="password" value="Password" />
 
@@ -82,6 +86,7 @@ export default function Register() {
                     <InputError message={errors.password} className="mt-2" />
                 </div>
 
+                {/* パスワード確認 */}
                 <div className="mt-4">
                     <InputLabel htmlFor="password_confirmation" value="Confirm Password" />
 
@@ -99,6 +104,38 @@ export default function Register() {
                     <InputError message={errors.password_confirmation} className="mt-2" />
                 </div>
 
+                {/* 車の説明 */}
+                <div className="mt-4">
+                    <InputLabel htmlFor="about_car" value="About Car" />
+
+                    <TextInput
+                        id="about_car"
+                        name="about_car"
+                        value={data.about_car}
+                        className="mt-1 block w-full"
+                        onChange={(e) => setData('about_car', e.target.value)}
+                    />
+
+                    <InputError message={errors.about_car} className="mt-2" />
+                </div>
+
+                {/* 車のナンバー */}
+                <div className="mt-4">
+                    <InputLabel htmlFor="car_number" value="Car Number" />
+
+                    <TextInput
+                        id="car_number"
+                        name="car_number"
+                        type="text"
+                        value={data.car_number}
+                        className="mt-1 block w-full"
+                        onChange={(e) => setData('car_number', e.target.value)}
+                    />
+
+                    <InputError message={errors.car_number} className="mt-2" />
+                </div>
+
+                {/* ボタン */}
                 <div className="flex items-center justify-end mt-4">
                     <Link
                         href={route('login')}

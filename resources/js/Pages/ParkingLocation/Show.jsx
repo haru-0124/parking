@@ -142,6 +142,21 @@ const Show = (props) => {
         console.log(`最終料金: ${totalFee} 円`);
     };
     
+    const handleBackClick = (e) => {
+        e.preventDefault();
+
+        // 現在の駐車場の位置を保存
+        localStorage.setItem("lastLocation", JSON.stringify({
+          lat: location.latitude,
+          lng: location.longitude
+        }));
+        alert("保存されたよ！");
+        console.log("現在のlocationオブジェクト:", location);
+        console.log("保存した座標:", location.latitude, location.longitude);
+        setTimeout(() => {
+            router.visit("/locations");
+        }, 500);
+      };
     
     return (
         <Authenticated user={auth.user}>
@@ -272,9 +287,9 @@ const Show = (props) => {
                     <p>計算された料金: {calculatedFee}円</p>
                 </div>
 
-                <div className="my-6">
-                    <Link href="/locations">戻る</Link>
-                </div>
+                <button onClick={handleBackClick}>
+                    戻る
+                </button>
             </div>
         </Authenticated>
     );

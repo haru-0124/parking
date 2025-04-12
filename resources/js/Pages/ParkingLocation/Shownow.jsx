@@ -5,7 +5,7 @@ import { Link, useForm, router } from "@inertiajs/react";
 const Show = (props) => {
     console.log(props); // ここで props の中身を確認
 
-    const { location, auth, record, is_registered, basic_fees, mfods, mfoets, mfwps } = props;
+    const { location, auth, record, is_registered, basic_fees, mfods, mfoets } = props;
     const { post } = useForm();
     const [calculatedFee, setCalculatedFee] = useState(0); // 計算された料金を保持
     const formatDateTimeLocal = (dateString) => {
@@ -32,8 +32,8 @@ const Show = (props) => {
         }).replace(/\//g, "-").replace(" ", "T").slice(0, 16);
       };
       
-      // 初期値を設定（record?.created_at が無ければ現在時刻）
-      const [startTime, setStartTime] = useState(formatDateTimeLocal(record?.created_at));
+    // 初期値を設定（record?.created_at が無ければ現在時刻）
+    const [startTime, setStartTime] = useState(formatDateTimeLocal(record?.created_at));
 
     const [endTime, setEndTime] = useState(""); // 終了時間の状態を管理
 
@@ -56,89 +56,176 @@ const Show = (props) => {
             alert("開始日、開始時間、終了日、終了時間を入力してください");
             return;
         }
-    
+
         const start = new Date(startTime);
+        const startDate = start.getDate();
         const end = new Date(endTime);
-        const parkingTime = (end - start) / (1000 * 60 * 60);
-        console.log(`駐車時間${parkingTime}`);
+        const endDate = end.getDate();
+        const parkingMinutes = (end - start) / (1000 * 60);
+
+        function timeToMinutes(timeStr) {
+            const [hours, minutes] = timeStr.split(":").map(Number);
+            return hours * 60 + minutes;
+        }
+        
+        let state = { 
+            is_overlapped: true, 
+            is_continued_bf: "basic_feeのis_continued", 
+            is_continued_od: "基本料金の繰り返し", 
+            is_continued_oe: "経過時間の繰り返し" // コロン `:` を使う
+          }
+    
+        function nonOverlapFee(startHour, endHour, fee, feeStart, feeEnd, parkingMinutes, mfoets, mfods, state) {
+            let nonOverlapFee = 0
+            if ((feeStart <= startHour) && (endHour <= feeEnd)) {
+                nonOverlapFee = Math.ceil(parkingMinutes / fee.duration) * fee.fee
+                state.is_overlapped = false
+                if (parkingMinutes <= mfoets[0].limit_time * 60) {
+                    nonOverlapFee = Math.min(nonOverlapFee, mfoets[0].max_fee, fee.max_fee)
+                } else{
+                    nonOverlapFee = Math.min(nonOverlapFee, mfods[0].max_fee, fee.max_fee)
+                }
+                console.log(`${startHour}~${endHour}: ${nonOverlapFee}`)
+            }
+            return nonOverlapFee
+        }
+
+        function periodOverlapFeeBefore(startHour, endHour, fee, feeStart, feeEnd, startMinutes) {
+            let periodOverlapMinutesBefore = 0
+            let periodOverlapFeeBefore = 0
+            if ((feeStart <= startHour) && (startHour < feeEnd) && (feeEnd < endHour)) {
+                /*
+                    またぐ前
+                */
+                periodOverlapMinutesBefore = (timeToMinutes(feeEnd) - startMinutes)
+                periodOverlapFeeBefore = Math.ceil(periodOverlapMinutesBefore / fee.duration) * fee.fee
+                console.log(`${startHour}~${feeEnd}:${periodOverlapFeeBefore}`)
+            }
+            return periodOverlapFeeBefore
+        }
+
+        function periodOverlapFeeAfter(startHour, endHour, fee, feeStart, feeEnd, endMinutes) {
+            let periodOverlapMinutesAfter = 0
+            let periodOverlapFeeAfter = 0
+            if ((startHour < feeStart) && (feeStart < endHour)) {
+                /*
+                    またいだ後
+                */
+                if (endHour <= feeEnd) {
+                    periodOverlapMinutesAfter = (endMinutes - timeToMinutes(feeStart))
+                    periodOverlapFeeAfter = Math.ceil(periodOverlapMinutesAfter / fee.duration) * fee.fee
+                    console.log(`${feeStart}~${endHour}:${periodOverlapFeeAfter}`)
+                } else {
+                    periodOverlapMinutesAfter = (timeToMinutes(feeEnd) - timeToMinutes(feeStart))
+                    periodOverlapFeeAfter = Math.ceil(periodOverlapMinutesAfter / fee.duration) * fee.fee
+                    console.log(`${feeStart}~${feeEnd}:${periodOverlapFeeAfter}`)
+                }
+                console.log(periodOverlapFeeAfter)
+            }
+            return periodOverlapFeeAfter
+        }
+
+        function nonDayOverlapFee(startHour, endHour, parkingMinutes, basic_fees, mfoets, mfods, startMinutes, endMinutes, state) {
+            let nonDayOverlapFee = 0
+            basic_fees.forEach(fee => {
+                //期間をまたがない
+                if (fee.start_time < fee.end_time) {
+                    nonDayOverlapFee += nonOverlapFee(startHour, endHour, fee, fee.start_time, fee.end_time, parkingMinutes, mfoets, mfods, state)
+                } else {
+                    nonDayOverlapFee += nonOverlapFee(startHour, endHour, fee, "00:00:00", fee.end_time, parkingMinutes, mfoets, mfods, state)
+                    nonDayOverlapFee += nonOverlapFee(startHour, endHour, fee, fee.start_time, "24:00:00", parkingMinutes, mfoets, mfods, state)
+                }
+            });
+
+            if (state.is_overlapped) {
+                //期間をまたぐ
+                console.log("期間をまたぐ")
+                basic_fees.forEach(fee => {
+                    if (fee.end_time > fee.start_time) {
+                        /*
+                            基本料金が日をまたがない
+                        */
+                        nonDayOverlapFee += periodOverlapFeeBefore(startHour, endHour, fee, fee.start_time, fee.end_time, startMinutes)
+                        nonDayOverlapFee += periodOverlapFeeAfter(startHour, endHour, fee, fee.start_time, fee.end_time, endMinutes)
+                    } else {
+                        /*
+                            基本料金が日をまたぐ
+                        */
+                        nonDayOverlapFee += periodOverlapFeeBefore(startHour, endHour, fee, "00:00:00", fee.end_time, startMinutes)
+                        nonDayOverlapFee += periodOverlapFeeAfter(startHour, endHour, fee, fee.start_time, "24:00:00", endMinutes)
+                    }
+                });
+                
+                if (parkingMinutes < 60 * mfoets[0].limit_time) {
+                    nonDayOverlapFee = Math.min(mfoets[0].max_fee, nonDayOverlapFee)
+                } else {
+                    nonDayOverlapFee = Math.min(mfods[0].max_fee, nonDayOverlapFee)
+                }
+            }
+            state.is_overlapped = true
+            return nonDayOverlapFee
+        }
+
+        //start endからhh:mm:ssの部分のみ抽出
+        const startHour = start.toTimeString().split(" ")[0];
+        const endHour = end.toTimeString().split(" ")[0];
+
+        //hh:mm:ssを全て分でint型に0:00:00 0分, 6:00:00 360分
+        const startMinutes = timeToMinutes(startHour)
+        const endMinutes = timeToMinutes(endHour)
+        
+        console.log(startTime, endTime)
+        console.log(`駐車時間:${parkingMinutes}分`);
     
         if (start >= end) {
             alert("開始日時は終了日時より前でなければなりません");
             return;
         }
-    
+
         let totalFee = 0;
-        let totalFeeOnDay = 0;
-        let totalFeeOnElapsedTime = 0;
-        let fragTime = 30;
-        let fragTotal = 0;
-    
-        let current = new Date(start);
-    
-        while (current < end) {
-            let currentTime = current.toLocaleTimeString("ja-JP", { hour12: false });
-            let currentTimeInMinutes = parseInt(currentTime.slice(0, 2)) * 60 + parseInt(currentTime.slice(3, 5));
+        if (startDate == endDate) {
+            //日にちをまたがない
+            console.log(`${startHour} ~ ${endHour}`)
+            totalFee = nonDayOverlapFee(startHour, endHour, parkingMinutes, basic_fees, mfoets, mfods, startMinutes, endMinutes, state)
+        } else {
+            //日にちをまたぐ
+            console.log("日にちをまたぐ")
             
-            console.log(new Date(current).toLocaleString("ja-JP", {
-                month: "numeric",
-                day: "numeric",
-                hour: "numeric",
-                minute: "numeric",
-                hour12: false
-              })); // ループごとにコピーして出力
-            current.setMinutes(current.getMinutes() + fragTime);
-            fragTotal += fragTime; // 入庫後時間制最大料金用
-    
-            basic_fees.forEach(fee => {
-                let startTimeInMinutes = parseInt(fee.start_time.slice(0, 2)) * 60 + parseInt(fee.start_time.slice(3, 5));
-                let endTimeInMinutes = parseInt(fee.end_time.slice(0, 2)) * 60 + parseInt(fee.end_time.slice(3, 5));
-                if (fee.start_time < fee.end_time) {
-                    if (currentTimeInMinutes >= startTimeInMinutes && currentTimeInMinutes < endTimeInMinutes) {
-                        totalFee += fee.fee;
-                        totalFeeOnElapsedTime += fee.fee;
-                        totalFeeOnDay += fee.fee;
-                    }
-                } else {
-                    if (currentTimeInMinutes >= startTimeInMinutes || currentTimeInMinutes < endTimeInMinutes) {
-                        totalFee += fee.fee;
-                        totalFeeOnElapsedTime += fee.fee;
-                        totalFeeOnDay += fee.fee;
-                    }
-                }
-            });
-    
-            mfods.forEach(fee => {
-                let daychange = new Date(current);
-                daychange.setHours(0, fragTime);
-                if (current < daychange) {
-                    console.log(`当日最大料金確認${totalFeeOnDay}`);
-                    if (totalFeeOnDay > fee.max_fee) {
-                        console.log(`当日最大料金適用による差額${totalFeeOnDay - fee.max_fee}`);
-                        totalFee -= totalFeeOnDay - fee.max_fee;
-                        totalFeeOnDay = 0;
-                        if (totalFeeOnElapsedTime > fee.max_fee) {
-                            totalFeeOnElapsedTime -= totalFeeOnDay - fee.max_fee
+            let middleDaysFee = 0;
+            let startDayFee = 0;
+            let endDayFee = 0;
+            let parkingDate = endDate - startDate
+
+            // startHour から 24:00 までの料金計算
+            startDayFee = nonDayOverlapFee(startHour, "24:00:00", timeToMinutes("24:00:00") - startMinutes ,basic_fees, mfoets, mfods, startMinutes, timeToMinutes("24:00;00"), state)
+            // 0:00 から endHour までの料金計算
+            endDayFee = nonDayOverlapFee("00:00:00", endHour, endMinutes, basic_fees, mfoets, mfods, timeToMinutes("00:00:00"), endMinutes, state)
+
+            if (parkingDate >= 2) {
+                middleDaysFee = mfods[0].max_fee * (parkingDate - 1)
+                console.log(`間${parkingDate - 1}日${middleDaysFee}円`)
+            }
+
+            totalFee += startDayFee + middleDaysFee + endDayFee;
+
+            if (parkingDate == 1){
+                basic_fees.forEach(fee => {
+                    if (fee.start_time > fee.end_time) {
+                        if ((startHour > fee.start_time) && (fee.end_time > endHour)){
+                            totalFee = nonOverlapFee(startHour, endHour, fee, fee.start_time, fee.end_time, parkingMinutes, mfoets, mfods, state)
+                            console.log(`totalFee ${totalFee}, fee.max_fee ${fee.max_fee}`)
+                            totalFee = Math.min(totalFee, fee.max_fee)
                         }
                     }
-                }
-            });
-    
-            mfoets.forEach(fee => {
-                if (fragTotal >= 60 * fee.limit_time) {
-                    console.log(`入庫後時間制最大料金確認${totalFeeOnElapsedTime}`);
-                    if (totalFeeOnElapsedTime > fee.max_fee) {
-                        console.log(`入庫後時間制最大料金適用による差額${totalFeeOnElapsedTime - fee.max_fee}`);
-                        totalFee -= totalFeeOnElapsedTime - fee.max_fee;
-                        fragTotal = 0;
-                        totalFeeOnElapsedTime = 0;
-                    }
-                }
-            });
-            console.log(`料金${totalFee}`)
+                })
+            }
 
-            {/*mfwps.forEach(fee => {
-                if fee.
-            })*/}
+            if (parkingMinutes <= mfoets[0].limit_time * 60) {
+                console.log(totalFee, mfoets[0].max_fee)
+                totalFee = Math.min(totalFee, mfoets[0].max_fee)
+            }
+
+            console.log(`startDayFee: ${startDayFee}円, middleDaysFee: ${middleDaysFee}, endDayFee: ${endDayFee}円, totalFee: ${totalFee}円`);
         }
     
         setCalculatedFee(totalFee); // 計算結果を状態に保存
@@ -156,6 +243,26 @@ const Show = (props) => {
                 <p>経度 {location.longitude}</p>
                 <p>種類 {location.parking_type?.name ?? "未登録"}</p>
 
+                <div>
+                    <Link 
+                        href={`/locations/${location.id}/edit`} 
+                        className="bg-green-500 text-white px-4 py-2 rounded mr-2"
+                    >
+                        編集
+                    </Link>
+                    <button
+                        className="bg-red-500 text-white px-4 py-2 rounded"
+                        onClick={() => {
+                            if (confirm("本当に削除しますか？")) {
+                                router.delete(`/locations/${location.id}`);
+                            }
+                        }}
+                    >
+                        削除
+                    </button>
+                </div>
+            
+
                 <div className="my-6">
                     {/* 駐車場の登録状況 */}
                     {is_registered ? (
@@ -168,19 +275,6 @@ const Show = (props) => {
                             駐車場所を登録
                         </button>
                     )}
-                </div>
-
-                <div className="my-6">
-                    <button
-                        className="p-1 bg-purple-300 hover:bg-purple-400 rounded-md"
-                        onClick={() =>
-                            router.delete(`/locations/${location.id}`, {
-                                onBefore: () => confirm("本当に削除しますか？"),
-                            })
-                        }
-                    >
-                        delete
-                    </button>
                 </div>
 
                 <div className="my-6">
@@ -202,9 +296,10 @@ const Show = (props) => {
                     {/* 基本料金の表示 */}
                     <Link href={`/locations/${location.id}/basicfees`}>基本料金の詳細</Link>
                     {basic_fees.map((fee) => (
-                        <div key={fee.id}>
+                        <div key={fee.id} style={{ marginBottom: fee.max_fee ? '16px' : '8px' }}>
                             <h2>{fee.start_time}~{fee.end_time}</h2>
                             <p>{fee.duration}分{fee.fee}円</p>
+                            {fee.max_fee && <p>最大{fee.max_fee}円</p>}
                         </div>
                     ))}
                 </div>
@@ -226,17 +321,6 @@ const Show = (props) => {
                     {mfoets.map((fee) => (
                         <div key={fee.id}>
                             <h2>{fee.limit_time}時間</h2>
-                            <p>最大{fee.max_fee}円</p>
-                        </div>
-                    ))}
-                </div>
-
-                <div className="my-6">
-                    {/* 時間帯内最大料金の表示 */}
-                    <Link href={`/locations/${location.id}/mfwps`}>時間帯内最大料金の詳細</Link>
-                    {mfwps.map((fee) => (
-                        <div key={fee.id}>
-                            <h2>{fee.start_time}~{fee.end_time}</h2>
                             <p>最大{fee.max_fee}円</p>
                         </div>
                     ))}

@@ -20,7 +20,7 @@ const ShowOnElapsedTimes = (props) => {
                 {/* max_feesが空の場合の処理 */}
                 {max_fees.length > 0 ? (
                     max_fees.map((fee) => (
-                        <div key={fee.id} className="mb-4 p-4 border rounded shadow">
+                        <div key={fee.id} className="bg-white rounded-lg shadow-md p-6">
                             <h2 className="text-lg font-bold">入庫後 {fee.limit_time} 時間まで</h2>
                             <p className="text-gray-700">最大 {fee.max_fee} 円</p>
 
@@ -49,16 +49,13 @@ const ShowOnElapsedTimes = (props) => {
                     <p className="text-gray-500">時間制最大料金が設定されていません。</p>
                 )}
 
-                <div className="mt-4">
+                <div className="mt-8">
                     <Link 
                         href={`/locations/${location.id}/mfoets/register`}
-                        className="bg-blue-500 text-white px-4 py-2 rounded"
+                        className="bg-blue-500 text-white px-4 py-2 rounded mr-4"
                     >
-                        作成
+                        最大料金を設定
                     </Link>
-                </div>
-
-                <div className="mt-4">
                     <Link 
                         href={`/locations/${location.id}`} 
                         className="bg-gray-400 text-white px-4 py-2 rounded"
