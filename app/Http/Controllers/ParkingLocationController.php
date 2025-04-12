@@ -71,7 +71,7 @@ class ParkingLocationController extends Controller
             'end_time' => 'required',
             'duration' => 'required|integer',
             'fee' => 'required|integer',
-            'max_fee' => 'integer',
+            'max_fee' => 'nullable|integer',
         ]);
 
         $location->basic_fees()->create([
@@ -130,7 +130,7 @@ class ParkingLocationController extends Controller
 
         $is_registered = !is_null($record);
 
-        return Inertia::render('ParkingLocation/Show2', [
+        return Inertia::render('ParkingLocation/Show3', [
             'location' => $location->load('parking_type'),
             'record' => $record,
             'basic_fees' => $location->getByLocation(),

@@ -18,6 +18,8 @@ class ProfileUpdateRequest extends FormRequest
         return [
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', Rule::unique(User::class)->ignore($this->user()->id)],
+            'about_car' => ['nullable', 'string', 'max:255'],
+            'car_number' => ['nullable', 'string', 'min:4', 'max:4', 'regex:/^\d{4}$/'],
         ];
     }
 }
