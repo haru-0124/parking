@@ -24,6 +24,8 @@
         "vite": "^5.0.0"
     },
     "dependencies": {
-        "@vis.gl/react-google-maps": "^1.5.1"
+        "@vis.gl/react-google-maps": "^1.5.1",
+        "leaflet": "^1.9.4",
+        "react-leaflet": "^4.2.1"
     }
 }

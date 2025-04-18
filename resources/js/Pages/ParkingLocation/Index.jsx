@@ -12,19 +12,22 @@ const Index = (props) => {
   const { locations } = props;
   const defaultLocation = { lat: 34.72531, lng: 135.23463 };
   const [location, setLocation] = useState(defaultLocation);
+  const [clickedLocation, setClickedLocation] = useState(defaultLocation);
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    // まずは localStorage から座標を読み取る（戻ってきたとき用）
     const lastLocation = localStorage.getItem("lastLocation");
-    console.log(lastLocation)
     if (lastLocation) {
       const { lat, lng } = JSON.parse(lastLocation);
-      console.log(`${lat},${lng}`)
       setLocation({ lat, lng });
+      console.log(`lat ${lat}`)
+      console.log(`lng ${lng}`)
+      console.log(`location ${location}`)
+      localStorage.removeItem("lastLocation");
+      return;
     }
 
-    if ((!navigator.geolocation) && lastLocation) {
+    if (!navigator.geolocation && lastLocation) {
       setError("お使いのブラウザは位置情報に対応していません。デフォルト位置を表示します。");
       return;
     }
@@ -36,20 +39,11 @@ const Index = (props) => {
           lng: position.coords.longitude
         };
         setLocation(current);
-        console.log("現在地：", current.lat, current.lng);
 
-        // APIリクエストのURLを動的に作成
-        const url = `/api/fetch-parking?location=${current.lat},${current.lng}&radius=1500`;
-
-        // APIリクエストを送信
-        fetch(url)
-            .then(response => response.json())
-            .then(data => {
-                console.log('取得した駐車場情報:', data);
-            })
-            .catch(error => {
-                console.error('駐車場情報の取得エラー:', error);
-            });
+        fetch(`/api/fetch-parking?location=${current.lat},${current.lng}&radius=1500`)
+          .then(response => response.json())
+          .then(data => console.log('取得した駐車場情報:', data))
+          .catch(error => console.error('駐車場情報の取得エラー:', error));
       },
       (err) => {
         setError("位置情報の取得に失敗しました。デフォルト位置を表示します。");
@@ -60,6 +54,17 @@ const Index = (props) => {
       navigator.geolocation.clearWatch(watchId);
     };
   }, []);
+
+  const handleClick = (e) => {
+    const latLng = e.detail.latLng;
+    if (!latLng) return;
+  
+    const lat = latLng.lat;
+    const lng = latLng.lng;
+  
+    console.log("クリック座標: ", lat, lng);
+    setClickedLocation({ lat, lng });
+  };
 
   return (
     <Authenticated
@@ -73,61 +78,77 @@ const Index = (props) => {
         </div>
       )}
     >
-      <APIProvider
-        apiKey={import.meta.env.VITE_GOOGLE_MAPS_API_KEY}
-        onLoad={() => console.log("Maps API has loaded.")}
-      >
-        {error && (
-          <>
-            <div className="fixed inset-0 bg-black opacity-30 z-40" />
-            <div className="fixed inset-0 flex items-center justify-center z-50">
-              <div className="bg-white border border-gray-300 rounded-lg shadow-lg p-6 max-w-sm w-full z-50">
-                <h2 className="text-red-600 font-semibold text-lg mb-4">エラー</h2>
-                <p className="text-gray-800 mb-4">{error}</p>
-                <button
-                  onClick={() => setError(null)}
-                  className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded"
+      <APIProvider apiKey={import.meta.env.VITE_GOOGLE_MAPS_API_KEY}>
+        <div>
+          <Map
+            key={JSON.stringify(location)} // ここがポイント！
+            style={{ width: "100%", height: "500px" }}
+            defaultZoom={13}
+            defaultCenter={location}
+            mapId={import.meta.env.VITE_GOOGLE_MAPS_ID}
+            onClick={handleClick}
+          >
+            <AdvancedMarker
+              key="current-location"
+              position={clickedLocation}
+              draggable={true}
+              onDragEnd={(e) => {
+                const latLng = e.latLng;
+                if (!latLng) return;
+
+                const lat = latLng.lat();
+                const lng = latLng.lng();
+                setClickedLocation({lat, lng})
+                console.log("ドラッグ移動後の位置:", lat, lng);
+              }}
+              onClick={() => {
+                if (window.confirm("この位置の周辺駐車場を取得しますか？")) {
+                  const { lat, lng } = clickedLocation;
+                  localStorage.setItem("lastLocation", JSON.stringify(clickedLocation));
+                  console.log("ドラッグ移動後の位置:", lat, lng);
+          
+                  fetch(`/api/fetch-parking?location=${lat},${lng}&radius=1500`)
+                    .then(response => response.json())
+                    .then(data => {
+                      console.log('取得した駐車場情報:', data);
+                    })
+                    .catch(error => {
+                      console.error('駐車場情報の取得エラー:', error);
+                    });
+                    router.visit('/locations', {
+                      only: ['locations'],
+                      preserveState: false,
+                      onSuccess: () => {
+                        console.log("ページをリロードして最新の駐車場情報を取得しました");
+                      }
+                    });
+                }
+              }}
+            >
+              <Pin background={"#FBBC04"} glyphColor={"#000"} borderColor={"#000"} />
+            </AdvancedMarker>
+
+            {locations.map((parking) => {
+              const isRegistered = (parking.parking_records ?? []).some(
+                (record) => record.user_id === props.auth.user.id
+              );
+
+              return (
+                <AdvancedMarker
+                  key={parking.id}
+                  position={{ lat: parking.latitude, lng: parking.longitude }}
+                  onClick={() => router.visit(`/locations/${parking.id}`)}
                 >
-                  閉じる
-                </button>
-              </div>
-            </div>
-          </>
-        )}
-
-        <Map
-          style={{ width: "100%", height: "500px" }}
-          defaultZoom={13}
-          defaultCenter={location}
-          mapId={import.meta.env.VITE_GOOGLE_MAPS_ID}
-          /*onCameraChanged={(ev) =>
-            console.log("camera changed:", ev.detail.center, "zoom:", ev.detail.zoom)
-          }*/
-        >
-          <AdvancedMarker key="current-location" position={location}>
-            <Pin background={"#FBBC04"} glyphColor={"#000"} borderColor={"#000"} />
-          </AdvancedMarker>
-
-          {locations.map((parking) => {
-            const isRegistered = (parking.parking_records ?? []).some(
-              (record) => record.user_id === props.auth.user.id
-            );
-
-            return (
-              <AdvancedMarker
-                key={parking.id}
-                position={{ lat: parking.latitude, lng: parking.longitude }}
-                onClick={() => router.visit(`/locations/${parking.id}`)}
-              >
-                <Pin
-                  background={isRegistered ? "#34A853" : "#4285F4"}
-                  glyphColor={"#fff"}
-                  borderColor={"#000"}
-                />
-              </AdvancedMarker>
-            );
-          })}
-        </Map>
+                  <Pin
+                    background={isRegistered ? "#34A853" : "#4285F4"}
+                    glyphColor={"#fff"}
+                    borderColor={"#000"}
+                  />
+                </AdvancedMarker>
+              );
+            })}
+          </Map>
+        </div>
       </APIProvider>
     </Authenticated>
   );
