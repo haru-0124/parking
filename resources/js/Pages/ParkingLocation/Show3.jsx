@@ -60,124 +60,152 @@ const Show = (props) => {
         lng: location.longitude
         }));
     };
+
+    const [showActions, setShowActions] = useState(false);
     
     return (
         <Authenticated user={auth.user} header={
+            <div className="flex items-center justify-start">
                 <h2 className="font-semibold text-xl text-gray-800 leading-tight">
                     {location.name ?? "名称未登録の駐車場"}
                 </h2>
-            }>
-            <div className="p-12">
-                <div className="grid grid-cols-3 gap-4">
-                    <p><strong>緯度:</strong> {location.latitude}</p>
-                    <p><strong>経度:</strong> {location.longitude}</p>
-                    <p><strong>種類:</strong> {location.parking_type?.name ?? "未登録"}</p>
+                <nav className="flex space-x-4 ml-4">
+                    <Link href="/locations" className="font-semibold text-xl text-gray-800 leading-tight">ホーム</Link>
+                </nav>
+                {is_registered && (
+                <p className="font-semibold text-green-600 text-sm ml-4">現在あなたが駐車中</p>
+                )}
+            </div> 
+        }>
+        <div className="p-12 space-y-8">
+            {/* 駐車場情報 */}
+            <div className="bg-white shadow-md rounded-lg p-6 border border-gray-200">
+                <h3 className="text-xl font-bold mb-4">🚗 駐車場情報</h3>
+                <div className="grid grid-cols-1 gap-4 mb-4 break-words">
+                    <p className="whitespace-normal break-words w-full">
+                        <strong>駐車場タイプ:</strong>
+                        {location.parking_type?.name ?? "未登録"}
+                        {location.parking_type?.description && ` (${location.parking_type.description})`}
+                    </p>
                 </div>
 
-                <div>
-                    <Link 
-                        href={`/locations/${location.id}/edit`} 
-                        className="bg-green-500 text-white px-4 py-2 rounded mr-2"
-                    >
-                        編集
-                    </Link>
-                    <button
-                        className="bg-red-500 text-white px-4 py-2 rounded"
-                        onClick={() => {
-                            if (confirm("本当に削除しますか？")) {
-                                router.delete(`/locations/${location.id}`);
-                            }
-                        }}
-                    >
-                        削除
-                    </button>
-                </div>
-            
-                <div className="my-6">
-                    {/* 駐車場の登録状況 */}
+                <div className="mt-4">
                     {is_registered ? (
-                        <p className="text-green-600">登録済み</p>
+                        <button
+                            className="p-2 bg-red-500 text-white rounded-md hover:bg-red-600"
+                            onClick={handleUnregisterRecord}
+                        >
+                            駐車を終了する
+                        </button>
                     ) : (
                         <button
                             className="p-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
                             onClick={handleRegisterRecord}
                         >
-                            駐車場所を登録
+                            ここに駐車する
                         </button>
                     )}
-                </div>
 
-                <div className="my-6">
-                    {props.is_registered && (
-                        <button
-                            className="p-2 bg-red-500 text-white rounded-md hover:bg-red-600"
-                            onClick={handleUnregisterRecord}
-                        >
-                            駐車場所を解除
-                        </button>
-                    )}
-                </div>
-
-                <div className="my-6">
-                    <Link href={`/locations/${location.id}/edit`}>駐車場の位置・種類の変更</Link>
-                </div>
-
-                <div className="my-6 grid grid-cols-1 md:grid-cols-3 gap-6">
-
-                    {/* 基本料金 */}
-                    <div className="bg-white shadow-lg rounded-lg p-6 border border-gray-200">
-                        <Link href={`/locations/${location.id}/basicfees`} 
-                            className="inline-block bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-md transition duration-300">
-                            基本料金の詳細
-                        </Link>
-                        <div className="mt-4 space-y-4">
-                            {basic_fees.map((fee) => (
-                                <div key={fee.id} className="p-4 bg-gray-50 rounded-lg border-l-4 border-blue-500 shadow-sm">
-                                    <h2 className="text-lg font-semibold text-gray-700">{fee.start_time} ~ {fee.end_time}</h2>
-                                    <p className="text-gray-600">{fee.duration}分 / <span className="text-blue-600 font-bold">{fee.fee}円</span></p>
-                                    {fee.max_fee && (
-                                        <p className="text-gray-800 font-bold">最大: <span className="text-red-500">{fee.max_fee}円</span></p>
-                                    )}
-                                </div>
-                            ))}
+                    {/* ▼アイコン風のトグルボタン */}
+                    <div className="mt-4 flex justify-center">
+                            <button
+                                onClick={() => setShowActions(!showActions)}
+                                className="text-gray-600 hover:text-gray-900 focus:outline-none"
+                                aria-label="アクション表示切替"
+                            >
+                                {showActions ? (
+                                    <span className="text-2xl">▲</span>
+                                ) : (
+                                    <span className="text-2xl">▼</span>
+                                )}
+                            </button>
                         </div>
-                    </div>
 
-                    {/* 当日最大料金 */}
-                    <div className="bg-white shadow-lg rounded-lg p-6 border border-gray-200">
-                        <Link href={`/locations/${location.id}/mfods`} 
-                            className="inline-block bg-green-500 hover:bg-green-600 text-white py-2 px-4 rounded-md transition duration-300">
-                            当日最大料金の詳細
-                        </Link>
-                        <div className="mt-4 space-y-4">
-                            {mfods.map((fee) => (
-                                <div key={fee.id} className="p-4 bg-gray-50 rounded-lg border-l-4 border-green-500 shadow-sm">
-                                    <h2 className="text-lg font-semibold text-gray-700">当日に出庫</h2>
-                                    <p className="text-gray-800 font-bold">最大: <span className="text-red-500">{fee.max_fee}円</span></p>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-
-                    {/* 入庫後時間制最大料金 */}
-                    <div className="bg-white shadow-lg rounded-lg p-6 border border-gray-200">
-                        <Link href={`/locations/${location.id}/mfoets`} 
-                            className="inline-block bg-yellow-500 hover:bg-yellow-600 text-white py-2 px-4 rounded-md transition duration-300">
-                            入庫後時間制最大料金の詳細
-                        </Link>
-                        <div className="mt-4 space-y-4">
-                            {mfoets.map((fee) => (
-                                <div key={fee.id} className="p-4 bg-gray-50 rounded-lg border-l-4 border-yellow-500 shadow-sm">
-                                    <h2 className="text-lg font-semibold text-gray-700">{fee.limit_time}時間</h2>
-                                    <p className="text-gray-800 font-bold">最大: <span className="text-red-500">{fee.max_fee}円</span></p>
-                                </div>
-                            ))}
-                        </div>
+                        {/* 編集・削除ボタン：展開状態のときのみ表示 */}
+                        {showActions && (
+                            <div className="mt-4 flex justify-start gap-2">
+                                <Link
+                                    href={`/locations/${location.id}/edit`}
+                                    className="bg-green-500 text-white px-4 py-2 rounded"
+                                >
+                                    駐車場情報の編集
+                                </Link>
+                                <button
+                                    className="bg-red-500 text-white px-4 py-2 rounded"
+                                    onClick={() => {
+                                        if (confirm("本当に削除しますか？")) {
+                                            router.delete(`/locations/${location.id}`);
+                                        }
+                                    }}
+                                >
+                                    駐車場の削除
+                                </button>
+                            </div>
+                        )}
                     </div>
                 </div>
 
+                {/* 料金情報 */}
                 <div className="bg-white shadow-md rounded-lg p-6 border border-gray-200">
-                    <div className="grid grid-cols-2 gap-4">
+                    <h3 className="text-xl font-bold mb-4">💴 料金情報</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        {/* 基本料金 */}
+                        <div>
+                            <Link href={`/locations/${location.id}/basicfees`} 
+                                className="inline-block bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-md">
+                                基本料金の詳細
+                            </Link>
+                            <div className="mt-4 space-y-4">
+                                {basic_fees.map((fee) => (
+                                    <div key={fee.id} className="p-4 bg-gray-50 rounded-lg border-l-4 border-blue-500 shadow-sm">
+                                        <h2 className="text-lg font-semibold text-gray-700">{fee.start_time} ~ {fee.end_time}</h2>
+                                        <p className="text-gray-600">{fee.duration}分 / <span className="text-blue-600 font-bold">{fee.fee}円</span></p>
+                                        {fee.max_fee && (
+                                            <p className="text-red-500 font-bold">最大: {fee.max_fee}円</p>
+                                        )}
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+    
+                        {/* 当日最大料金 */}
+                        <div>
+                            <Link href={`/locations/${location.id}/mfods`} 
+                                className="inline-block bg-green-500 hover:bg-green-600 text-white py-2 px-4 rounded-md">
+                                当日最大料金の詳細
+                            </Link>
+                            <div className="mt-4 space-y-4">
+                                {mfods.map((fee) => (
+                                    <div key={fee.id} className="p-4 bg-gray-50 rounded-lg border-l-4 border-green-500 shadow-sm">
+                                        <h2 className="text-lg font-semibold text-gray-700">当日に出庫</h2>
+                                        <p className="text-red-500 font-bold">最大: {fee.max_fee}円</p>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+    
+                        {/* 入庫後時間制最大料金 */}
+                        <div>
+                            <Link href={`/locations/${location.id}/mfoets`} 
+                                className="inline-block bg-yellow-500 hover:bg-yellow-600 text-white py-2 px-4 rounded-md">
+                                入庫後時間制最大料金の詳細
+                            </Link>
+                            <div className="mt-4 space-y-4">
+                                {mfoets.map((fee) => (
+                                    <div key={fee.id} className="p-4 bg-gray-50 rounded-lg border-l-4 border-yellow-500 shadow-sm">
+                                        <h2 className="text-lg font-semibold text-gray-700">{fee.limit_time}時間</h2>
+                                        <p className="text-red-500 font-bold">最大: {fee.max_fee}円</p>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+    
+                {/* 料金計算 */}
+                <div className="bg-white shadow-md rounded-lg p-6 border border-gray-200">
+                    <h3 className="text-xl font-bold mb-4">🧮 駐車料金計算</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                             <label className="block font-bold mb-2">開始日時:</label>
                             <input
@@ -187,7 +215,6 @@ const Show = (props) => {
                                 className="w-full border border-gray-400 rounded-md p-2"
                             />
                         </div>
-
                         <div>
                             <label className="block font-bold mb-2">終了日時:</label>
                             <input
@@ -198,7 +225,6 @@ const Show = (props) => {
                             />
                         </div>
                     </div>
-
                     <div className="my-6">
                         <button
                             className="p-2 bg-green-500 text-white rounded-md hover:bg-green-600"
@@ -210,18 +236,12 @@ const Show = (props) => {
                             駐車料金を計算
                         </button>
                     </div>
-
-                    <div className="my-6">
-                        <p>計算された料金: {calculatedFee}円</p>
+                    <div>
+                        <p>料金: {calculatedFee}円</p>
                     </div>
-                </div>
-
-                <div className="my-6">
-                    <Link href="/locations" onClick={handleBackClick}>戻る</Link>
                 </div>
             </div>
         </Authenticated>
     );
-};
-
+}
 export default Show;
