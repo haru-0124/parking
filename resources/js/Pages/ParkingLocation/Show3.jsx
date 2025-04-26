@@ -63,6 +63,8 @@ const Show = (props) => {
 
     const [showActions, setShowActions] = useState(false);
     
+    const [showActions, setShowActions] = useState(false);
+    
     return (
         <Authenticated user={auth.user} header={
             <div className="flex items-center justify-start">
@@ -70,7 +72,7 @@ const Show = (props) => {
                     {location.name ?? "名称未登録の駐車場"}
                 </h2>
                 <nav className="flex space-x-4 ml-4">
-                    <Link href="/locations" className="font-semibold text-xl text-gray-800 leading-tight">ホーム</Link>
+                    <Link href="/locations" onClick={handleBackClick}className="font-semibold text-xl text-gray-800 leading-tight">ホーム</Link>
                 </nav>
                 {is_registered && (
                 <p className="font-semibold text-green-600 text-sm ml-4">現在あなたが駐車中</p>
@@ -229,7 +231,7 @@ const Show = (props) => {
                         <button
                             className="p-2 bg-green-500 text-white rounded-md hover:bg-green-600"
                             onClick={() => {
-                                const parkingFee = calculateParkingFee(startTime, endTime, basic_fees, mfods);
+                                const parkingFee = calculateParkingFee(startTime, endTime, basic_fees, mfods, mfoets);
                                 setCalculatedFee(parkingFee);
                             }}
                         >
