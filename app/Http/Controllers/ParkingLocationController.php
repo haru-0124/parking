@@ -130,7 +130,7 @@ class ParkingLocationController extends Controller
 
         $is_registered = !is_null($record);
 
-        return Inertia::render('ParkingLocation/Show3', [
+        return Inertia::render('ParkingLocation/Show', [
             'location' => $location->load('parking_type'),
             'record' => $record,
             'basic_fees' => $location->getByLocation(),
