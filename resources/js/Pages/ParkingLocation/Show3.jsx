@@ -60,6 +60,8 @@ const Show = (props) => {
         lng: location.longitude
         }));
     };
+
+    const [showActions, setShowActions] = useState(false);
     
     const [showActions, setShowActions] = useState(false);
     
