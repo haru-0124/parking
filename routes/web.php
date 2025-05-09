@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
+use App\Models\ParkingRecord;
 
 /*
 |--------------------------------------------------------------------------
@@ -34,7 +35,25 @@ Route::get('/', function () {
 });
 
 Route::get('/dashboard', function () {
-    return Inertia::render('Dashboard');
+    $user = Auth::user();
+
+    $parkingRecords = ParkingRecord::with([
+        'parkingLocation',
+        'parkingLocation.basicFees',
+        'parkingLocation.mfods',
+        'parkingLocation.mfoets',
+        ])
+        ->where('user_id', $user->id)
+        ->latest()
+        ->get();
+
+        return Inertia::render('Dashboard', [
+            'auth' => [
+                'user' => $user,
+            ],
+            'parkingRecords' => $parkingRecords->toArray(),
+        ]);
+        
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::middleware('auth')->group(function () {
@@ -45,7 +64,7 @@ Route::middleware('auth')->group(function () {
 
 Route::middleware('auth')->group(function () {
     //index データ一覧表示
-    Route::get('/locations', [ParkingLocationController::class, 'index']);
+    Route::get('/locations', [ParkingLocationController::class, 'index'])->name('index');
 
     //create 新しいデータの作成画面を表示
     Route::get('/locations/register', [ParkingLocationController::class, 'create']);

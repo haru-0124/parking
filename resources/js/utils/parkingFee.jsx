@@ -196,7 +196,7 @@ export function calculateParkingFee(startTime, endTime, basic_fees, mfods, mfoet
                 console.log(unitOverDayFee)
                 overDayFee += unitOverDayFee
                 //中日にある18:00~6:00に停めた分の料金の合計をoverDayFeeに加算する
-                unitOverDayMinutes = timeToMinutes(overDayBasicFee.start_time)-timeToMinutes(overDayBasicFee.end_time)
+                unitOverDayMinutes = (timeToMinutes("24:00:00")-timeToMinutes(overDayBasicFee.start_time)) + (timeToMinutes(overDayBasicFee.end_time)-timeToMinutes("00:00:00"))
                 unitOverDayFee = parkingSimpleFee(unitOverDayMinutes, overDayBasicFee)
                 unitOverDayFee *= parkingDate - 3
                 console.log(unitOverDayFee)
@@ -215,7 +215,7 @@ export function calculateParkingFee(startTime, endTime, basic_fees, mfods, mfoet
                 console.log(unitOverDayFee)
                 overDayFee += unitOverDayFee
                 //中日にある18:00~6:00に停めた分の料金の合計をoverDayFeeに加算する
-                unitOverDayMinutes = timeToMinutes(overDayBasicFee.start_time)-timeToMinutes(overDayBasicFee.end_time)
+                unitOverDayMinutes = (timeToMinutes("24:00:00")-timeToMinutes(overDayBasicFee.start_time)) + (timeToMinutes(overDayBasicFee.end_time)-timeToMinutes("00:00:00"))
                 unitOverDayFee = parkingSimpleFee(unitOverDayMinutes, overDayBasicFee)
                 unitOverDayFee *= parkingDate - 2
                 console.log(unitOverDayFee)
@@ -236,7 +236,7 @@ export function calculateParkingFee(startTime, endTime, basic_fees, mfods, mfoet
                 console.log(unitOverDayFee)
                 overDayFee += unitOverDayFee
                 //中日にある18:00~6:00に停めた分の料金の合計をoverDayFeeに加算する
-                unitOverDayMinutes = timeToMinutes(overDayBasicFee.start_time)-timeToMinutes(overDayBasicFee.end_time)
+                unitOverDayMinutes = (timeToMinutes("24:00:00")-timeToMinutes(overDayBasicFee.start_time)) + (timeToMinutes(overDayBasicFee.end_time)-timeToMinutes("00:00:00"))
                 unitOverDayFee = parkingSimpleFee(unitOverDayMinutes, overDayBasicFee)
                 unitOverDayFee *= parkingDate - 2
                 console.log(unitOverDayFee)
@@ -316,7 +316,7 @@ export function calculateParkingFee(startTime, endTime, basic_fees, mfods, mfoet
                 // 0:00 から endHour までの料金計算
                 endDayFee = nonDayOverlapFee("00:00:00", endHour, endMinutes, basic_fees, mfods, timeToMinutes("00:00:00"), endMinutes, state)
                 //中間の日の料金
-                middleDaysFee = nonDayOverlapFee("00:00:00", "24:00:00", timeToMinutes("24:00:00"), basic_fees, mfods, timeToMinutes("00:00:00"), timeToMinutes("24:00:00"), state) * (parkingDate - 2)
+                middleDaysFee = mfods.max_fee * (parkingDate - 2)
                 totalFee = Math.min(totalFee, startDayFee + middleDaysFee + endDayFee)
             }
         }
@@ -346,3 +346,34 @@ export function calculateParkingFee(startTime, endTime, basic_fees, mfods, mfoet
     }
     return totalFee;
 };
+
+export function generateFeeGraphDataWithNextIncrease(startTime, now, basic_fees, mfods, mfoets, state = { is_overlapped: true, is_regressed: false }) {
+    const labels = [];
+    const data = [];
+
+    let currentFee = calculateParkingFee(startTime, now, basic_fees, mfods, mfoets, state);
+    let nextIncreaseMinutes = null;
+
+    for (let i = 0; i <= 24 * 60; i += 10) {
+        const futureTime = new Date(now.getTime() + i * 60 * 1000);
+        const fee = calculateParkingFee(startTime, futureTime, basic_fees, mfods, mfoets, state);
+
+        // グラフデータ
+        const hours = Math.floor(i / 60);
+        const minutes = i % 60;
+        labels.push(`${hours}h${minutes > 0 ? `${minutes}m` : ''}`);
+        data.push(fee);
+
+        // 次の料金増加を検出（最初に増えた時のみ記録）
+        if (nextIncreaseMinutes === null && fee > currentFee) {
+            nextIncreaseMinutes = i;
+        }
+    }
+
+    return {
+        currentFee,
+        labels,
+        data,
+        nextIncreaseMinutes,  // ← 追加で返す
+    };
+}

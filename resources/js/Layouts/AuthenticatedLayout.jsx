@@ -20,9 +20,12 @@ export default function Authenticated({ user, header, children }) {
                                 </Link>
                             </div>
 
-                            <div className="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
+                            <div className="space-x-8 sm:ms-10 flex mt-2">
                                 <NavLink href={route('dashboard')} active={route().current('dashboard')}>
-                                    Dashboard
+                                    駐車状況・料金確認
+                                </NavLink>
+                                <NavLink href={route('index')} active={route().current('index')}>
+                                    ホーム
                                 </NavLink>
                             </div>
                         </div>

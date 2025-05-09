@@ -1,7 +1,7 @@
 import React, { useState } from "react"; // useStateをインポート
 import Authenticated from "@/Layouts/AuthenticatedLayout";
 import { Link, useForm, router } from "@inertiajs/react";
-import { calculateParkingFee } from '@/utils/calculateParkingFee';
+import { calculateParkingFee} from '@/utils/parkingFee';
 
 const Show = (props) => {
     console.log(props); // ここで props の中身を確認
@@ -67,9 +67,7 @@ const Show = (props) => {
                 <h2 className="font-semibold text-xl text-gray-800 leading-tight">
                     {location.name ?? "名称未登録の駐車場"}
                 </h2>
-                <nav className="flex space-x-4 ml-4">
-                    <Link href="/locations" onClick={handleBackClick} className="font-semibold text-xl text-gray-800 leading-tight">ホーム</Link>
-                </nav>
+
                 {is_registered && (
                 <p className="font-semibold text-green-600 text-sm ml-4">現在あなたが駐車中</p>
                 )}
@@ -237,6 +235,10 @@ const Show = (props) => {
                     <div>
                         <p>料金: {calculatedFee}円</p>
                     </div>
+                </div>
+
+                <div className="my-6">
+                    <Link href="/locations" onClick={handleBackClick}>戻る</Link>
                 </div>
             </div>
         </Authenticated>
