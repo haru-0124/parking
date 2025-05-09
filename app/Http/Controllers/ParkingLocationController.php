@@ -21,7 +21,7 @@ class ParkingLocationController extends Controller
     public function index()
     {
         return Inertia::render("ParkingLocation/Index", [
-            "locations" => ParkingLocation::with(["parking_type", "parking_records"])->get()
+            "locations" => ParkingLocation::with(["parkingType", "parkingRecords"])->get()
         ]);
     }
 
@@ -74,7 +74,7 @@ class ParkingLocationController extends Controller
             'max_fee' => 'nullable|integer',
         ]);
 
-        $location->basic_fees()->create([
+        $location->basicFees()->create([
             'start_time' => $request->start_time,
             'end_time' => $request->end_time,
             'duration' => $request->duration,
@@ -92,7 +92,7 @@ class ParkingLocationController extends Controller
             'max_fee' => 'required',
         ]);
 
-        $location->max_fee_on_days()->create([
+        $location->mfods()->create([
             'max_fee' => $request->max_fee,
         ]);
 
@@ -107,7 +107,7 @@ class ParkingLocationController extends Controller
             'limit_time' => 'required',
         ]);
 
-        $location->max_fee_on_elapsed_times()->create([
+        $location->mfoets()->create([
             'max_fee' => $request->max_fee,
             'limit_time' => $request->limit_time,
         ]);
@@ -131,12 +131,11 @@ class ParkingLocationController extends Controller
         $is_registered = !is_null($record);
 
         return Inertia::render('ParkingLocation/Show', [
-            'location' => $location->load('parking_type'),
+            'location' => $location->load('parkingType'),
             'record' => $record,
             'basic_fees' => $location->getByLocation(),
             'mfods' => $location->getByLocationOnDay(),
             'mfoets' => $location->getByLocationOnElapsedTime(),
-            'mfwps' => $location->getByLocationWithinPeriod(),
             'auth' => ['user' => $user], 
             'is_registered' => $is_registered,
         ]);
@@ -168,7 +167,7 @@ class ParkingLocationController extends Controller
      */
     public function edit(ParkingLocation $location)
     {
-        return Inertia::render("ParkingLocation/Edit",["location" => $location->load('parking_type'), "types" => ParkingType::all()]);
+        return Inertia::render("ParkingLocation/Edit",["location" => $location->load('parkingType'), "types" => ParkingType::all()]);
     }
 
     public function editBasicFee(ParkingLocation $location, BasicFee $basicfee)
@@ -203,7 +202,7 @@ class ParkingLocationController extends Controller
             'end_time' => 'required',
             'duration' => 'required|integer',
             'fee' => 'required|integer',
-            'max_fee' => 'integer'
+            'max_fee' => 'nullable|integer'
         ]);
 
         $basicfee->update($request->only(['start_time', 'end_time', 'duration', 'fee', 'max_fee']));

@@ -16,7 +16,7 @@ class ParkingRecord extends Model
         return $this->belongsTo(User::class);
     }
 
-    public function parking_location()
+    public function parkingLocation()
     {
         return $this->belongsTo(ParkingLocation::class);
     }

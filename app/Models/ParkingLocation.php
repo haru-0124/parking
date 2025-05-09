@@ -19,51 +19,41 @@ class ParkingLocation extends Model
 
     public function getByLocation()
     {
-        return $this->basic_fees()->with('parking_location')->orderBy('updated_at', 'DESC')->get();
+        return $this->basicFees()->with('parking_location')->orderBy('updated_at', 'DESC')->get();
     }
 
     public function getByLocationOnDay()
     {
-        return $this->max_fee_on_days()->with('parking_location')->orderBy('updated_at', 'DESC')->get();
+        return $this->mfods()->with('parking_location')->orderBy('updated_at', 'DESC')->get();
     }
 
     public function getByLocationOnElapsedTime()
     {
-        return $this->max_fee_on_elapsed_times()->with('parking_location')->orderBy('updated_at', 'DESC')->get();
+        return $this->mfoets()->with('parking_location')->orderBy('updated_at', 'DESC')->get();
     }
 
-    public function getByLocationWithinPeriod()
-    {
-        return $this->max_fee_within_periods()->with('parking_location')->orderBy('updated_at', 'DESC')->get();
-    }
-
-    public function parking_records()
+    public function parkingRecords()
     {
         return $this->hasMany(ParkingRecord::class);  
     }
 
-    public function parking_type()
+    public function parkingType()
     {
         return $this->belongsTo(ParkingType::class);
     }
 
-    public function basic_fees()
+    public function basicFees()
     {
         return $this->hasMany(BasicFee::class);
     }
 
-    public function max_fee_on_days()
+    public function mfods()
     {
         return $this->hasMany(MaxFeeOnDay::class);
     }
 
-    public function max_fee_on_elapsed_times()
+    public function mfoets()
     {
         return $this->hasMany(MaxFeeOnElapsedTime::class);
-    }
-
-    public function max_fee_within_periods()
-    {
-        return $this->hasMany(MaxFeeWithinPeriod::class);
     }
 }
