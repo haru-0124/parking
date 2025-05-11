@@ -11,7 +11,7 @@ const ShowOnDays = (props) => {
             user={props.auth.user}
             header={
                 <h2 className="font-semibold text-xl text-gray-800 leading-tight">
-                    当日最大料金
+                    当日最大料金の詳細
                 </h2>
             }
         >

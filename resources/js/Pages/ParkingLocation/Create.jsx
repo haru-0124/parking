@@ -53,7 +53,7 @@ const Register = (props) => {
     return (
         <Authenticated user={props.auth.user} header={
             <h2 className="font-semibold text-xl text-gray-800 leading-tight">
-                Register
+                駐車場情報の登録
             </h2>
         }>
             <div className="p-12">

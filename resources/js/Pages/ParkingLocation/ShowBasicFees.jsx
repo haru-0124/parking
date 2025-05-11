@@ -9,7 +9,7 @@ const ShowBasicFees = (props) => {
     return (
         <Authenticated
             user={props.auth.user}
-            header={<h2 className="font-semibold text-xl text-gray-800 leading-tight">基本料金</h2>}
+            header={<h2 className="font-semibold text-xl text-gray-800 leading-tight">基本料金の詳細</h2>}
         >
             <div className="p-12">
                 <h1 className="text-2xl font-bold mb-4">基本料金</h1>
@@ -19,7 +19,7 @@ const ShowBasicFees = (props) => {
                         basic_fees.map((fee) => (
                             <div key={fee.id} className="bg-white rounded-lg shadow-md p-6">
                                 <h2 className="text-lg font-semibold">
-                                    {fee.start_time} ~ {fee.end_time}
+                                    {fee.start_time} ~ {fee.end_time === "23:59:00" ? "24:00:00" : fee.end_time}
                                 </h2>
                                 <p className="text-gray-700">{fee.duration}分 {fee.fee}円</p>
                                 {fee.max_fee && <p className="text-gray-500">最大 {fee.max_fee}円</p>}
