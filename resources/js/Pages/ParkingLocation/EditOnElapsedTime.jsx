@@ -19,7 +19,7 @@ const EditOnElapsedTimes = (props) => {
             user={props.auth.user} 
             header={
                 <h2 className="font-semibold text-2xl text-gray-800 leading-tight">
-                    入庫後時間制最大料金の設定
+                    入庫後時間制最大料金の編集
                 </h2>
             }
         >

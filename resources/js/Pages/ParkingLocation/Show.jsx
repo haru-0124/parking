@@ -154,7 +154,7 @@ const Show = (props) => {
                             <div className="mt-4 space-y-4">
                                 {basic_fees.map((fee) => (
                                     <div key={fee.id} className="p-4 bg-gray-50 rounded-lg border-l-4 border-blue-500 shadow-sm">
-                                        <h2 className="text-lg font-semibold text-gray-700">{fee.start_time} ~ {fee.end_time}</h2>
+                                        <h2 className="text-lg font-semibold text-gray-700">{fee.start_time} ~ {fee.end_time === "23:59:00" ? "24:00:00" : fee.end_time}</h2>
                                         <p className="text-gray-600">{fee.duration}分 / <span className="text-blue-600 font-bold">{fee.fee}円</span></p>
                                         {fee.max_fee && (
                                             <p className="text-red-500 font-bold">最大: {fee.max_fee}円</p>
