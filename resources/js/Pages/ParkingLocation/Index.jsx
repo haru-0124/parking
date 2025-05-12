@@ -22,7 +22,7 @@ const Index = (props) => {
       setLocation({ lat, lng });
       console.log(`lat ${lat}`)
       console.log(`lng ${lng}`)
-      console.log(`location ${location}`)
+      console.log("現在のlocation:", JSON.stringify(location)); 
       localStorage.removeItem("lastLocation");
       return;
     }
@@ -129,6 +129,8 @@ const Index = (props) => {
             </AdvancedMarker>
 
             {locations.map((parking) => {
+              console.log(`lat ${parking.latitude}`)
+              console.log(`lng ${parking.longitude}`)
               const isRegistered = (parking.parking_records ?? []).some(
                 (record) => record.user_id === props.auth.user.id
               );
