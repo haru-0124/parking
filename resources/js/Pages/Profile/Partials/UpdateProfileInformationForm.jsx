@@ -74,7 +74,7 @@ export default function UpdateProfileInformationForm({ mustVerifyEmail, status, 
                     <InputLabel htmlFor="car_number" value="車の番号" />
                     <TextInput
                         id="car_number"
-                        type="number"
+                        type="string"
                         value={data.car_number}
                         onChange={(e) => setData('car_number', e.target.value)}
                         className="mt-1 block w-full"
