@@ -90,7 +90,7 @@ const Index = (props) => {
           >
             <AdvancedMarker
               key="current-location"
-              position={new google.maps.LatLng(clickedLocation.lat, clickedLocation.lng)}
+              position={clickedLocation}
               draggable={true}
               onDragEnd={(e) => {
                 const latLng = e.latLng;
