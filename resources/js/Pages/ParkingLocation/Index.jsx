@@ -89,45 +89,6 @@ const Index = (props) => {
             mapId={import.meta.env.VITE_GOOGLE_MAPS_ID}
             onClick={handleClick}
           >
-            <AdvancedMarker
-              key="current-location"
-              position={clickedLocation}
-              draggable={true}
-              onDragEnd={(e) => {
-                setLatLng(e.latLng);
-                if (!latLng) return;
-
-                const lat = latLng.lat();
-                const lng = latLng.lng();
-                setClickedLocation({lat, lng})
-                console.log("ドラッグ移動後の位置:", lat, lng);
-              }}
-              onClick={() => {
-                if (window.confirm("この位置の周辺駐車場を取得しますか？")) {
-                  const { lat, lng } = clickedLocation;
-                  localStorage.setItem("lastLocation", JSON.stringify(clickedLocation));
-                  console.log("ドラッグ移動後の位置:", lat, lng);
-          
-                  fetch(`/api/fetch-parking?location=${lat},${lng}&radius=1500`)
-                    .then(response => response.json())
-                    .then(data => {
-                      console.log('取得した駐車場情報:', data);
-                    })
-                    .catch(error => {
-                      console.error('駐車場情報の取得エラー:', error);
-                    });
-                    router.visit('/locations', {
-                      only: ['locations'],
-                      preserveState: false,
-                      onSuccess: () => {
-                        console.log("ページをリロードして最新の駐車場情報を取得しました");
-                      }
-                    });
-                }
-              }}
-            >
-              <Pin background={"#FBBC04"} glyphColor={"#000"} borderColor={"#000"} />
-            </AdvancedMarker>
 
             {locations.map((parking) => {
               console.log(`lat ${parking.latitude}`)
