@@ -14,6 +14,7 @@ const Index = (props) => {
   const [location, setLocation] = useState(defaultLocation);
   const [clickedLocation, setClickedLocation] = useState(defaultLocation);
   const [error, setError] = useState(null);
+  const [latLng, setLatLng] = useState(null);
 
   useEffect(() => {
     const lastLocation = localStorage.getItem("lastLocation");
@@ -55,8 +56,18 @@ const Index = (props) => {
     };
   }, []);
 
+  useEffect(() => {
+    if (window.google && window.google.maps) {
+      const position = new window.google.maps.LatLng(35.681236, 139.767125); // 東京駅
+      setLatLng(position);
+      console.log("googleあり")
+    } else {
+      console.log("googleなし")
+    }
+  }, [location]);
+
   const handleClick = (e) => {
-    const latLng = e.detail.latLng;
+    setLatLng(e.detail.latLng);
     if (!latLng) return;
   
     const lat = latLng.lat;
@@ -90,10 +101,10 @@ const Index = (props) => {
           >
             <AdvancedMarker
               key="current-location"
-              position={clickedLocation}
+              position={latLng}
               draggable={true}
               onDragEnd={(e) => {
-                const latLng = e.latLng;
+                setLatLng(e.latLng);
                 if (!latLng) return;
 
                 const lat = latLng.lat();
