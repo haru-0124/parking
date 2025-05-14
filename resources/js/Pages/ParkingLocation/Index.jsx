@@ -56,16 +56,6 @@ const Index = (props) => {
     };
   }, []);
 
-  useEffect(() => {
-    if (window.google && window.google.maps) {
-      const position = new window.google.maps.LatLng(35.681236, 139.767125); // 東京駅
-      setLatLng(position);
-      console.log("googleあり")
-    } else {
-      console.log("googleなし")
-    }
-  }, [location]);
-
   const handleClick = (e) => {
     setLatLng(e.detail.latLng);
     if (!latLng) return;
@@ -101,7 +91,7 @@ const Index = (props) => {
           >
             <AdvancedMarker
               key="current-location"
-              position={latLng}
+              position={clickedLocation}
               draggable={true}
               onDragEnd={(e) => {
                 setLatLng(e.latLng);
