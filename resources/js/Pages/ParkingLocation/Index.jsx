@@ -20,7 +20,7 @@ const Index = (props) => {
     const lastLocation = localStorage.getItem("lastLocation");
     if (lastLocation) {
       const { lat, lng } = JSON.parse(lastLocation);
-      setLocation({ lat, lng });
+      setLocation({ lat:parseFloat(lat), lng:parseFloat(lng) });
       console.log(`lat ${lat}`)
       console.log(`lng ${lng}`)
       console.log("現在のlocation:", JSON.stringify(location)); 
