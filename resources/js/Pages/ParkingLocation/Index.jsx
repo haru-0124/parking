@@ -100,7 +100,7 @@ const Index = (props) => {
               return (
                 <AdvancedMarker
                   key={parking.id}
-                  position={{ lat: paeseFloat(parking.latitude), lng: paeseFloat(parking.longitude) }}
+                  position={{ lat: parseFloat(parking.latitude), lng: parseFloat(parking.longitude) }}
                   onClick={() => router.visit(`/locations/${parking.id}`)}
                 >
                   <Pin
