@@ -34,7 +34,7 @@ export default function Register() {
             <form onSubmit={submit}>
                 {/* 名前 */}
                 <div>
-                    <InputLabel htmlFor="name" value="Name" />
+                    <InputLabel htmlFor="name" value="名前" />
 
                     <TextInput
                         id="name"
@@ -52,7 +52,7 @@ export default function Register() {
 
                 {/* メール */}
                 <div className="mt-4">
-                    <InputLabel htmlFor="email" value="Email" />
+                    <InputLabel htmlFor="email" value="メールアドレス" />
 
                     <TextInput
                         id="email"
@@ -70,7 +70,7 @@ export default function Register() {
 
                 {/* パスワード */}
                 <div className="mt-4">
-                    <InputLabel htmlFor="password" value="Password" />
+                    <InputLabel htmlFor="password" value="パスワード" />
 
                     <TextInput
                         id="password"
@@ -88,7 +88,7 @@ export default function Register() {
 
                 {/* パスワード確認 */}
                 <div className="mt-4">
-                    <InputLabel htmlFor="password_confirmation" value="Confirm Password" />
+                    <InputLabel htmlFor="password_confirmation" value="パスワード(確認)" />
 
                     <TextInput
                         id="password_confirmation"
@@ -106,7 +106,7 @@ export default function Register() {
 
                 {/* 車の説明 */}
                 <div className="mt-4">
-                    <InputLabel htmlFor="about_car" value="About Car" />
+                    <InputLabel htmlFor="about_car" value="車の説明(空欄可)" />
 
                     <TextInput
                         id="about_car"
@@ -121,7 +121,7 @@ export default function Register() {
 
                 {/* 車のナンバー */}
                 <div className="mt-4">
-                    <InputLabel htmlFor="car_number" value="Car Number" />
+                    <InputLabel htmlFor="car_number" value="車の番号(空欄可)" />
 
                     <TextInput
                         id="car_number"
@@ -141,11 +141,11 @@ export default function Register() {
                         href={route('login')}
                         className="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
                     >
-                        Already registered?
+                        既に登録している場合
                     </Link>
 
                     <PrimaryButton className="ms-4" disabled={processing}>
-                        Register
+                        新規登録
                     </PrimaryButton>
                 </div>
             </form>

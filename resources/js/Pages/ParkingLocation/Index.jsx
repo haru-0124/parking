@@ -6,7 +6,7 @@ import {
   AdvancedMarker,
   Pin
 } from "@vis.gl/react-google-maps";
-import { Link, router } from '@inertiajs/react';
+import { Head, router } from '@inertiajs/react';
 
 const Index = (props) => {
   const { locations } = props;
@@ -67,18 +67,45 @@ const Index = (props) => {
     setClickedLocation({ lat, lng });
   };
 
+  const LegendPin = ({ color }) => (
+    <svg width="12" height="16" viewBox="0 0 24 24" className="mr-1">
+      <path
+        fill={color}
+        stroke="#000"
+        strokeWidth="1"
+        d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"
+      />
+    </svg>
+  );
+
+
   return (
     <Authenticated
       user={props.auth.user}
       header={(
+      <div className="flex items-center justify-between">
         <div className="flex items-center space-x-4">
-          <h2 className="font-semibold text-xl text-gray-800 leading-tight">ホーム</h2>
-          <nav className="flex space-x-4">
-            <Link href="/locations/register" className="font-semibold text-xl text-gray-800 leading-tight">新しい駐車場の登録</Link>
-          </nav>
+          <h2 className="font-semibold text-xl text-gray-800 leading-tight">駐車場を探す</h2>
         </div>
+        <div className="flex items-center space-x-4">
+          {/* ピンの凡例（レジェンド） */}
+          <div className="flex items-center space-x-1">
+            <LegendPin color="#FBBC04" />
+            <span className="text-sm text-gray-600">現在地</span>
+          </div>
+          <div className="flex items-center space-x-1">
+            <LegendPin color="#34A853" />
+            <span className="text-sm text-gray-600">あなたが駐車中の駐車場</span>
+          </div>
+          <div className="flex items-center space-x-1">
+            <LegendPin color="#4285F4" />
+            <span className="text-sm text-gray-600">その他の駐車場</span>
+          </div>
+        </div>
+      </div>
       )}
     >
+      <Head title="駐車場を探す" />
       <APIProvider apiKey={import.meta.env.VITE_GOOGLE_MAPS_API_KEY}>
         <div>
           <Map
@@ -94,11 +121,8 @@ const Index = (props) => {
               position={clickedLocation}
               draggable={true}
               onDragEnd={(e) => {
-                setLatLng(e.latLng);
-                if (!latLng) return;
-
-                const lat = parseFloat(latLng.lat());
-                const lng = parseFloat(latLng.lng());
+                const lat = parseFloat(e.latLng.lat());
+                const lng = parseFloat(e.latLng.lng());
                 setClickedLocation({lat, lng})
                 console.log("ドラッグ移動後の位置:", lat, lng);
               }}
@@ -107,31 +131,30 @@ const Index = (props) => {
                   const { lat, lng } = clickedLocation;
                   localStorage.setItem("lastLocation", JSON.stringify(clickedLocation));
                   console.log("ドラッグ移動後の位置:", lat, lng);
-          
+
                   fetch(`/api/fetch-parking?location=${lat},${lng}&radius=1500`)
                     .then(response => response.json())
                     .then(data => {
                       console.log('取得した駐車場情報:', data);
-                    })
-                    .catch(error => {
-                      console.error('駐車場情報の取得エラー:', error);
-                    });
-                    router.visit('/locations', {
-                      only: ['locations'],
-                      preserveState: false,
-                      onSuccess: () => {
-                        console.log("ページをリロードして最新の駐車場情報を取得しました");
+
+                      if (data.saved && data.saved.length > 0) {
+                        router.visit('/locations', {
+                          only: ['locations'],
+                          preserveState: false,
+                          onSuccess: () => {
+                            console.log("新しい駐車場が登録されたのでページをリロードしました");
+                          }
+                        });
+                      } else {
+                        console.log("新規登録はありませんでした。リロードしません。");
                       }
-                    });
-                }
-              }}
+                    })
+                }}}
             >
               <Pin background={"#FBBC04"} glyphColor={"#000"} borderColor={"#000"} />
             </AdvancedMarker>
 
             {locations.map((parking) => {
-              console.log(`lat ${parking.latitude}`)
-              console.log(`lng ${parking.longitude}`)
               const isRegistered = (parking.parking_records ?? []).some(
                 (record) => record.user_id === props.auth.user.id
               );

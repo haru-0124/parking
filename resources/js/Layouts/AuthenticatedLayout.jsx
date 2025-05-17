@@ -25,7 +25,10 @@ export default function Authenticated({ user, header, children }) {
                                     駐車状況・料金確認
                                 </NavLink>
                                 <NavLink href={route('index')} active={route().current('index')}>
-                                    ホーム
+                                    駐車場を探す
+                                </NavLink>
+                                <NavLink href={route('location.register')} active={route().current('location.register')}>
+                                    新しい駐車場の登録
                                 </NavLink>
                             </div>
                         </div>
@@ -58,9 +61,9 @@ export default function Authenticated({ user, header, children }) {
                                     </Dropdown.Trigger>
 
                                     <Dropdown.Content>
-                                        <Dropdown.Link href={route('profile.edit')}>Profile</Dropdown.Link>
+                                        <Dropdown.Link href={route('profile.edit')}>プロフィール情報</Dropdown.Link>
                                         <Dropdown.Link href={route('logout')} method="post" as="button">
-                                            Log Out
+                                            ログアウト
                                         </Dropdown.Link>
                                     </Dropdown.Content>
                                 </Dropdown>
@@ -94,12 +97,6 @@ export default function Authenticated({ user, header, children }) {
                 </div>
 
                 <div className={(showingNavigationDropdown ? 'block' : 'hidden') + ' sm:hidden'}>
-                    <div className="pt-2 pb-3 space-y-1">
-                        <ResponsiveNavLink href={route('dashboard')} active={route().current('dashboard')}>
-                            Dashboard
-                        </ResponsiveNavLink>
-                    </div>
-
                     <div className="pt-4 pb-1 border-t border-gray-200">
                         <div className="px-4">
                             <div className="font-medium text-base text-gray-800">{user.name}</div>
@@ -107,9 +104,9 @@ export default function Authenticated({ user, header, children }) {
                         </div>
 
                         <div className="mt-3 space-y-1">
-                            <ResponsiveNavLink href={route('profile.edit')}>Profile</ResponsiveNavLink>
+                            <ResponsiveNavLink href={route('profile.edit')}>プロフィール情報</ResponsiveNavLink>
                             <ResponsiveNavLink method="post" href={route('logout')} as="button">
-                                Log Out
+                                ログアウト
                             </ResponsiveNavLink>
                         </div>
                     </div>

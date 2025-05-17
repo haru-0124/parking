@@ -67,7 +67,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/locations', [ParkingLocationController::class, 'index'])->name('index');
 
     //create 新しいデータの作成画面を表示
-    Route::get('/locations/register', [ParkingLocationController::class, 'create']);
+    Route::get('/locations/register', [ParkingLocationController::class, 'create'])->name('location.register');
     Route::get('/locations/{location}/basicfees/register', [ParkingLocationController::class, "createBasicFee"]);
     Route::get('/locations/{location}/mfods/register', [ParkingLocationController::class, "createOnDay"]);
     Route::get('/locations/{location}/mfoets/register', [ParkingLocationController::class, "createOnElapsedTime"]);

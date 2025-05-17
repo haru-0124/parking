@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Link, useForm } from '@inertiajs/react';
+import { Head, Link, useForm } from '@inertiajs/react';
 import Authenticated from "@/Layouts/AuthenticatedLayout";
 import {
   APIProvider,
@@ -56,8 +56,8 @@ const Register = (props) => {
                 駐車場情報の登録
             </h2>
         }>
-            <div className="p-12">
-
+            <Head title="駐車場情報の登録" />
+            <div className="p-12 mx-auto">
                 {/* Googleマップ表示 */}
                 <APIProvider apiKey={import.meta.env.VITE_GOOGLE_MAPS_API_KEY}>
                     <Map
@@ -76,75 +76,58 @@ const Register = (props) => {
                     </Map>
                 </APIProvider>
 
-                <form onSubmit={handleSendLocations} className="mt-4">
-                    <div>
-                        <h2>駐車場名</h2>
-                        <input 
-                            type="string" 
-                            value={data.name}
-                            onChange={(e) => setData("name", e.target.value)}
-                            className="border rounded-md p-2 w-full"
-                        />
-                    </div>
+                <div className="bg-white shadow-lg rounded-2xl p-8">
+                    <form onSubmit={handleSendLocations} className="space-y-6">
+                        {[
+                            { label: "駐車場名(空欄可)", name: "name", type: "text", readOnly: false },
+                            { label: "緯度", name: "latitude", type: "number", step: "0.000001", readOnly: true },
+                            { label: "経度", name: "longitude", type: "number", step: "0.000001", readOnly: true },
+                            { label: "住所", name: "address", type: "text", readOnly: true },
+                        ].map((({ label, name, type, step, readOnly })=> (
+                            <div key={name}>
+                                <label className="block text-sm font-medium text-gray-700">{label}</label>
+                                <input
+                                    type={type}
+                                    step={step}
+                                    value={data[name]}
+                                    onChange={e => setData(name, e.target.value)}
+                                    readOnly={readOnly}
+                                    className="border rounded-md p-2 w-full"
+                                />
+                            </div>
+                        )))}
 
-                    <div>
-                        <h2>緯度</h2>
-                        <input 
-                            type="number" 
-                            step="0.000001" 
-                            value={data.latitude}
-                            readOnly
-                            className="border rounded-md p-2 w-full"
-                        />
-                    </div>                    
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700">駐車場の種類</label>
+                            <select 
+                                onChange={e => setData("parking_type_id", e.target.value)}
+                                className="border rounded-md p-2 w-full"
+                            >
+                                <option value="">選択しない</option>
+                                {types.map((type) => (
+                                    <option key={type.id} value={type.id}>
+                                        {type.name}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
 
-                    <div>
-                        <h2>経度</h2>
-                        <input 
-                            type="number" 
-                            step="0.000001" 
-                            value={data.longitude}
-                            readOnly
-                            className="border rounded-md p-2 w-full"
-                        />
-                    </div>
+                        <div className="flex justify-between items-center">
+                            <button 
+                                type="submit" 
+                                className="bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-md shadow-md"
+                            >
+                                登録
+                            </button>
 
-                    <div>
-                        <h2>住所</h2>
-                        <input 
-                            type="text"
-                            value={data.address}
-                            readOnly
-                            className="border rounded-md p-2 w-full"
-                        />
-                    </div>
-
-
-                    <div>
-                        <h2>駐車場の種類</h2>
-                        <select 
-                            onChange={e => setData("parking_type_id", e.target.value)}
-                            className="border rounded-md p-2 w-full"
-                        >
-                            <option value="">選択しない</option>
-                            {types.map((type) => (
-                                <option key={type.id} value={type.id}>
-                                    {type.name}
-                                </option>
-                            ))}
-                        </select>
-                    </div>
-
-                    <button 
-                        type="submit" 
-                        className="p-2 mt-4 bg-purple-500 hover:bg-purple-600 text-white rounded-md w-full"
-                    >
-                        登録
-                    </button>
-                </form>
-
-                <div className="mt-4">
-                    <Link href="/locations" className="text-blue-500">戻る</Link>
+                            <Link
+                                href="/locations"
+                                className="bg-gray-500 hover:bg-gray-600 text-white py-2 px-4 rounded-md shadow-md"
+                            >
+                                戻る
+                            </Link>
+                        </div>
+                    </form>
                 </div>
             </div>
         </Authenticated>

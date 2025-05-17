@@ -46,15 +46,15 @@ export default function DeleteUserForm({ className = '' }) {
     return (
         <section className={`space-y-6 ${className}`}>
             <header>
-                <h2 className="text-lg font-medium text-gray-900">Delete Account</h2>
+                <h2 className="text-lg font-medium text-gray-900">アカウント削除</h2>
 
                 <p className="mt-1 text-sm text-gray-600">
-                    Once your account is deleted, all of its resources and data will be permanently deleted. Before
-                    deleting your account, please download any data or information that you wish to retain.
+                    アカウントが削除されると、そのリソースとデータはすべて永久に削除されます。
+                    アカウントを削除する前に、保持したいデータや情報をダウンロードしてください。
                 </p>
             </header>
 
-            <DangerButton onClick={confirmUserDeletion}>Delete Account</DangerButton>
+            <DangerButton onClick={confirmUserDeletion}>アカウントを削除する</DangerButton>
 
             <Modal show={confirmingUserDeletion} onClose={closeModal}>
                 <form onSubmit={deleteUser} className="p-6">
@@ -86,10 +86,10 @@ export default function DeleteUserForm({ className = '' }) {
                     </div>
 
                     <div className="mt-6 flex justify-end">
-                        <SecondaryButton onClick={closeModal}>Cancel</SecondaryButton>
+                        <SecondaryButton onClick={closeModal}>キャンセル</SecondaryButton>
 
                         <DangerButton className="ms-3" disabled={processing}>
-                            Delete Account
+                           アカウントを削除する
                         </DangerButton>
                     </div>
                 </form>

@@ -1,6 +1,6 @@
 import React, { useState } from "react"; // useStateをインポート
 import Authenticated from "@/Layouts/AuthenticatedLayout";
-import { Link, useForm, router } from "@inertiajs/react";
+import { Head, Link, useForm, router } from "@inertiajs/react";
 import { calculateParkingFee} from '@/utils/parkingFee';
 
 const Show = (props) => {
@@ -73,73 +73,74 @@ const Show = (props) => {
                 )}
             </div> 
         }>
-        <div className="p-12 space-y-8">
-            {/* 駐車場情報 */}
-            <div className="bg-white shadow-md rounded-lg p-6 border border-gray-200">
-                <h3 className="text-xl font-bold mb-4">🚗 駐車場情報</h3>
-                <div className="grid grid-cols-1 gap-4 mb-4 break-words">
-                    <p className="whitespace-normal break-words w-full">
-                        <strong>駐車場タイプ:</strong>
-                        {location.parking_type?.name ?? "未登録"}
-                        {location.parking_type?.description && ` (${location.parking_type.description})`}
-                    </p>
-                </div>
+            <Head title="駐車場情報の詳細" />
+            <div className="p-12 space-y-8">
+                {/* 駐車場情報 */}
+                <div className="bg-white shadow-md rounded-lg p-6 border border-gray-200">
+                    <h3 className="text-xl font-bold mb-4">🚗 駐車場情報</h3>
+                    <div className="grid grid-cols-1 gap-4 mb-4 break-words">
+                        <p className="whitespace-normal break-words w-full">
+                            <strong>駐車場タイプ:</strong>
+                            {location.parking_type?.name ?? "未登録"}
+                            {location.parking_type?.description && ` (${location.parking_type.description})`}
+                        </p>
+                    </div>
 
-                <div className="mt-4">
-                    {is_registered ? (
-                        <button
-                            className="p-2 bg-red-500 text-white rounded-md hover:bg-red-600"
-                            onClick={handleUnregisterRecord}
-                        >
-                            駐車を終了する
-                        </button>
-                    ) : (
-                        <button
-                            className="p-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
-                            onClick={handleRegisterRecord}
-                        >
-                            ここに駐車する
-                        </button>
-                    )}
-
-                    {/* ▼アイコン風のトグルボタン */}
-                    <div className="mt-4 flex justify-center">
+                    <div className="mt-4">
+                        {is_registered ? (
                             <button
-                                onClick={() => setShowActions(!showActions)}
-                                className="text-gray-600 hover:text-gray-900 focus:outline-none"
-                                aria-label="アクション表示切替"
+                                className="p-2 bg-red-500 text-white rounded-md hover:bg-red-600"
+                                onClick={handleUnregisterRecord}
                             >
-                                {showActions ? (
-                                    <span className="text-2xl">▲</span>
-                                ) : (
-                                    <span className="text-2xl">▼</span>
-                                )}
+                                駐車を終了する
                             </button>
-                        </div>
+                        ) : (
+                            <button
+                                className="p-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
+                                onClick={handleRegisterRecord}
+                            >
+                                ここに駐車する
+                            </button>
+                        )}
 
-                        {/* 編集・削除ボタン：展開状態のときのみ表示 */}
-                        {showActions && (
-                            <div className="mt-4 flex justify-start gap-2">
-                                <Link
-                                    href={`/locations/${location.id}/edit`}
-                                    className="bg-green-500 text-white px-4 py-2 rounded"
-                                >
-                                    駐車場情報の編集
-                                </Link>
+                        {/* ▼アイコン風のトグルボタン */}
+                        <div className="mt-4 flex justify-center">
                                 <button
-                                    className="bg-red-500 text-white px-4 py-2 rounded"
-                                    onClick={() => {
-                                        if (confirm("本当に削除しますか？")) {
-                                            router.delete(`/locations/${location.id}`);
-                                        }
-                                    }}
+                                    onClick={() => setShowActions(!showActions)}
+                                    className="text-gray-600 hover:text-gray-900 focus:outline-none"
+                                    aria-label="アクション表示切替"
                                 >
-                                    駐車場の削除
+                                    {showActions ? (
+                                        <span className="text-2xl">▲</span>
+                                    ) : (
+                                        <span className="text-2xl">▼</span>
+                                    )}
                                 </button>
                             </div>
-                        )}
+
+                            {/* 編集・削除ボタン：展開状態のときのみ表示 */}
+                            {showActions && (
+                                <div className="mt-4 flex justify-start gap-2">
+                                    <Link
+                                        href={`/locations/${location.id}/edit`}
+                                        className="bg-green-500 text-white px-4 py-2 rounded"
+                                    >
+                                        駐車場情報の編集
+                                    </Link>
+                                    <button
+                                        className="bg-red-500 text-white px-4 py-2 rounded"
+                                        onClick={() => {
+                                            if (confirm("本当に削除しますか？")) {
+                                                router.delete(`/locations/${location.id}`);
+                                            }
+                                        }}
+                                    >
+                                        駐車場の削除
+                                    </button>
+                                </div>
+                            )}
+                        </div>
                     </div>
-                </div>
 
                 {/* 料金情報 */}
                 <div className="bg-white shadow-md rounded-lg p-6 border border-gray-200">
@@ -163,7 +164,7 @@ const Show = (props) => {
                                 ))}
                             </div>
                         </div>
-    
+
                         {/* 当日最大料金 */}
                         <div>
                             <Link href={`/locations/${location.id}/mfods`} 
@@ -179,7 +180,7 @@ const Show = (props) => {
                                 ))}
                             </div>
                         </div>
-    
+
                         {/* 入庫後時間制最大料金 */}
                         <div>
                             <Link href={`/locations/${location.id}/mfoets`} 
@@ -197,7 +198,7 @@ const Show = (props) => {
                         </div>
                     </div>
                 </div>
-    
+
                 {/* 料金計算 */}
                 <div className="bg-white shadow-md rounded-lg p-6 border border-gray-200">
                     <h3 className="text-xl font-bold mb-4">🧮 駐車料金計算</h3>
