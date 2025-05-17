@@ -22,16 +22,24 @@ const EditOnDay = (props) => {
             <div className="p-12 max-w-lg mx-auto">
                 <div className="bg-white shadow-lg rounded-2xl p-8">
                     <form onSubmit={submit} className="space-y-6">
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700">料金(円)</label>
-                            <input
-                                type="number"
-                                value={data.max_fee}
-                                onChange={e => setData('max_fee', e.target.value)}
-                                className="mt-1 block w-full border-gray-300 rounded-md shadow-sm"
-                            />
-                            {errors.max_fee && <div className="text-red-500 text-sm">{errors.max_fee}</div>}
-                        </div>
+                        {[
+                            { label: "料金(円)", name: "max_fee", type: "number" },
+                        ].map(({ label, name, type }) => (
+                            <div key={name}>
+                                <label className="block text-sm font-medium text-gray-700">{label}</label>
+                                <input
+                                    type={type}
+                                    value={data[name]}
+                                    onChange={e => setData(name, e.target.value)}
+                                    className="mt-1 block w-full border-gray-300 rounded-md shadow-sm"
+                                />
+                                {errors[name] && (
+                                    <div className="text-red-500 text-sm" aria-live="polite">
+                                        {errors[name]}
+                                    </div>
+                                )}
+                            </div>
+                        ))}
 
                         <div className="flex justify-between items-center">
                             <button

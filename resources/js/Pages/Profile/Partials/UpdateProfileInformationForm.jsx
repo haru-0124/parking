@@ -59,7 +59,7 @@ export default function UpdateProfileInformationForm({ mustVerifyEmail, status, 
 
                 {/* 車について */}
                 <div>
-                    <InputLabel htmlFor="about_car" value="車の説明" />
+                    <InputLabel htmlFor="about_car" value="車の説明(空欄可能)" />
                     <TextInput
                         id="about_car"
                         value={data.about_car}
@@ -71,7 +71,7 @@ export default function UpdateProfileInformationForm({ mustVerifyEmail, status, 
 
                 {/* 車の番号 */}
                 <div>
-                    <InputLabel htmlFor="car_number" value="車の番号" />
+                    <InputLabel htmlFor="car_number" value="車の番号(空欄可)" />
                     <TextInput
                         id="car_number"
                         type="string"
@@ -83,9 +83,9 @@ export default function UpdateProfileInformationForm({ mustVerifyEmail, status, 
                 </div>
 
                 <div className="flex items-center gap-4">
-                    <PrimaryButton disabled={processing}>保存</PrimaryButton>
+                    <PrimaryButton disabled={processing}>更新</PrimaryButton>
                     {recentlySuccessful && (
-                        <p className="text-sm text-gray-600">保存しました。</p>
+                        <p className="text-sm text-gray-600">プロフィール情報を更新しました。</p>
                     )}
                 </div>
             </form>

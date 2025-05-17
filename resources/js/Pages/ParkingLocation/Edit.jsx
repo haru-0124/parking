@@ -1,5 +1,5 @@
 import React from "react";
-import { Link, useForm } from '@inertiajs/react';
+import { Head, Link, useForm } from '@inertiajs/react';
 import Authenticated from "@/Layouts/AuthenticatedLayout";
 
 const Edit = (props) => {
@@ -23,6 +23,7 @@ const Edit = (props) => {
                 駐車場情報の編集
             </h2>
         }>
+            <Head title="駐車場情報の編集" />
             <div className="p-12 max-w-lg mx-auto">
                 <div className="bg-white shadow-lg rounded-2xl p-8">
                     <form onSubmit={handleSendLocations} className="space-y-6">
@@ -119,7 +120,7 @@ const Edit = (props) => {
                             </button>
                             <Link 
                                 href={`/locations/${location.id}`} 
-                                className="text-blue-500 hover:underline"
+                                className="bg-gray-500 hover:bg-gray-600 text-white py-2 px-4 rounded-md shadow-md"
                             >
                                 戻る
                             </Link>
