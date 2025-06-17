@@ -61,7 +61,7 @@ class ParkingLocationController extends Controller
     {
         $input = $request->all();
         $location->fill($input)->save(); 
-        return redirect("/locations");
+        return redirect("/locations/{$location->id}");
     }
 
     public function storeBasicFee(Request $request, ParkingLocation $location)

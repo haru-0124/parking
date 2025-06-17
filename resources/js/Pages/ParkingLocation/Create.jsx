@@ -48,6 +48,8 @@ const Register = (props) => {
         post("/locations");
     };
 
+    const [showInfo, setShowInfo] = useState(false)
+    
     console.log("選択した座標:", data);
 
     return (
@@ -98,7 +100,17 @@ const Register = (props) => {
                         )))}
 
                         <div>
-                            <label className="block text-sm font-medium text-gray-700">駐車場の種類</label>
+                            <label className="block text-sm font-medium text-gray-700">
+                                駐車場の種類
+                                <button
+                                    type="button"
+                                    onClick={() => setShowInfo(true)}
+                                    className="ml-2 text-blue-500 hover:text-blue-700"
+                                    title="駐車場の種類について"
+                                >
+                                    ℹ️
+                                </button>
+                            </label>
                             <select 
                                 onChange={e => setData("parking_type_id", e.target.value)}
                                 className="border rounded-md p-2 w-full"
@@ -110,12 +122,36 @@ const Register = (props) => {
                                     </option>
                                 ))}
                             </select>
+
+                            {/* モーダル */}
+                            {showInfo && (
+                                <div className="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50">
+                                    <div className="bg-white p-4 rounded-lg shadow-lg w-96">
+                                        <h2 className="text-lg font-bold mb-2">駐車場の種類の説明</h2>
+                                        <ul className="text-sm text-gray-700 space-y-1">
+                                            {types.map((type) => (
+                                                <li key={type.id}>
+                                                    <strong>{type.name}:</strong> {type.description}
+                                                </li>
+                                            ))}
+                                        </ul>
+                                        <div className="text-right mt-4">
+                                            <button
+                                                onClick={() => setShowInfo(false)}
+                                                className="text-blue-600 hover:text-blue-800"
+                                            >
+                                                閉じる
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
                         </div>
 
                         <div className="flex justify-between items-center">
                             <button 
                                 type="submit" 
-                                className="bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-md shadow-md"
+                                className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-md shadow-md"
                             >
                                 登録
                             </button>

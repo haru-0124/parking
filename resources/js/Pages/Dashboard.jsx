@@ -117,7 +117,10 @@ export default function Dashboard({ auth, parkingRecords }) {
                                 </ul>
                             </div>
                         ) : (
-                            '未駐車'
+                            <div>
+                                <p>駐車場所がまだ登録されていません</p>
+                                <Link href={`/locations`} className="text-blue-500">駐車場を探す</Link>
+                            </div>
                         )}
                     </div>
                 </div>

@@ -53,14 +53,14 @@ const EditBasicFee = (props) => {
                         <div className="flex justify-between items-center">
                             <button 
                                 type="submit" 
-                                className="bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-md shadow-md"
+                                className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-md shadow-md"
                                 disabled={processing}
                             >
                                 更新
                             </button>
                             <Link 
                                 href={`/locations/${basic_fee.parking_location_id}/basicfees`} 
-                                className="bg-gray-500 text-white px-4 py-2 rounded"
+                                className="bg-gray-500 hover:bg-gray-600 text-white py-2 px-4 rounded"
                             >
                                 戻る
                             </Link>
