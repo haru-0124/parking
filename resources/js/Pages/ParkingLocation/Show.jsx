@@ -60,6 +60,23 @@ const Show = (props) => {
     };
     
     const [showActions, setShowActions] = useState(false);
+
+    // ユニークな時間帯を抽出
+    const timeRanges = [...new Set(basic_fees.map(fee => `${fee.start_time}～${fee.end_time}`))];
+
+    // 時間帯ごとの基本料金（duration/fee）
+    const baseFeeMap = {};
+    const maxFeeMap = {};
+    timeRanges.forEach(range => {
+        const match = basic_fees.find(fee => `${fee.start_time}～${fee.end_time}` === range);
+        if (match) {
+        baseFeeMap[range] = `${match.fee}円/${match.duration}分`;
+        maxFeeMap[range] = match.max_fee ? `${match.max_fee}円` : "―";
+        } else {
+        baseFeeMap[range] = "―";
+        maxFeeMap[range] = "―";
+        }
+    });
     
     return (
         <Authenticated user={auth.user} header={
@@ -123,19 +140,19 @@ const Show = (props) => {
                                 <div className="mt-4 flex justify-start gap-2">
                                     <Link
                                         href={`/locations/${location.id}/edit`}
-                                        className="bg-green-500 text-white px-4 py-2 rounded"
+                                        className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
                                     >
-                                        駐車場情報の編集
+                                        ✏️ 編集
                                     </Link>
                                     <button
-                                        className="bg-red-500 text-white px-4 py-2 rounded"
+                                        className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
                                         onClick={() => {
                                             if (confirm("本当に削除しますか？")) {
                                                 router.delete(`/locations/${location.id}`);
                                             }
                                         }}
                                     >
-                                        駐車場の削除
+                                        🗑 削除
                                     </button>
                                 </div>
                             )}
@@ -145,57 +162,85 @@ const Show = (props) => {
                 {/* 料金情報 */}
                 <div className="bg-white shadow-md rounded-lg p-6 border border-gray-200">
                     <h3 className="text-xl font-bold mb-4">💴 料金情報</h3>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        {/* 基本料金 */}
-                        <div>
-                            <Link href={`/locations/${location.id}/basicfees`} 
-                                className="inline-block bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-md">
-                                基本料金の詳細
-                            </Link>
-                            <div className="mt-4 space-y-4">
-                                {basic_fees.map((fee) => (
-                                    <div key={fee.id} className="p-4 bg-gray-50 rounded-lg border-l-4 border-blue-500 shadow-sm">
-                                        <h2 className="text-lg font-semibold text-gray-700">{fee.start_time} ~ {fee.end_time === "23:59:00" ? "24:00:00" : fee.end_time}</h2>
-                                        <p className="text-gray-600">{fee.duration}分 / <span className="text-blue-600 font-bold">{fee.fee}円</span></p>
-                                        {fee.max_fee && (
-                                            <p className="text-red-500 font-bold">最大: {fee.max_fee}円</p>
-                                        )}
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
+                    <div className="overflow-x-auto">
+                        <table className="min-w-full table-auto border border-gray-300 text-sm text-center">
+                        <thead className="bg-gray-100">
+                            <tr>
+                            <th className="border px-4 py-2">項目</th>
+                            {timeRanges.length > 0 ? (
+                                timeRanges.map(range => (
+                                    <th key={range} className="border px-4 py-2">{range}</th>
+                                ))
+                            ) : (
+                                <th className="border px-4 py-2">期間</th>
+                            )}
+                            <th className="border px-4 py-2">変更</th>
+                            </tr>
+                        </thead>
+                        <tbody className="text-gray-700">
+                            {/* 基本料金 */}
+                            <tr>
+                                <td className="border px-4 py-2">基本料金</td>
+                                {timeRanges.length > 0 ? (
+                                    timeRanges.map(range => (
+                                        <td key={range} className="border px-4 py-2">
+                                            {baseFeeMap[range]}
+                                        </td>
+                                    ))
+                                ) : (
+                                    <td className="border px-4 py-2 text-center" colSpan={timeRanges.length || 1}>
+                                        ―
+                                    </td>
+                                )}
+                                <td className="border px-4 py-2">
+                                    <Link href={`/locations/${location.id}/basicfees`} className="text-blue-500 hover:underline">✏️</Link>
+                                </td>
+                            </tr>
 
-                        {/* 当日最大料金 */}
-                        <div>
-                            <Link href={`/locations/${location.id}/mfods`} 
-                                className="inline-block bg-green-500 hover:bg-green-600 text-white py-2 px-4 rounded-md">
-                                当日最大料金の詳細
-                            </Link>
-                            <div className="mt-4 space-y-4">
-                                {mfods.map((fee) => (
-                                    <div key={fee.id} className="p-4 bg-gray-50 rounded-lg border-l-4 border-green-500 shadow-sm">
-                                        <h2 className="text-lg font-semibold text-gray-700">当日に出庫</h2>
-                                        <p className="text-red-500 font-bold">最大: {fee.max_fee}円</p>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
+                            {/* 時間帯最大料金 */}
+                            <tr>
+                                <td className="border px-4 py-2">時間帯最大料金</td>
+                                {timeRanges.length > 0 ? (
+                                    timeRanges.map(range => (
+                                        <td key={range} className="border px-4 py-2">
+                                            {maxFeeMap[range]}
+                                        </td>
+                                    ))
+                                ) : (
+                                    <td className="border px-4 py-2 text-center" colSpan={timeRanges.length || 1}>
+                                        ―
+                                    </td>
+                                )}
+                                <td className="border px-4 py-2">
+                                    <Link href={`/locations/${location.id}/basicfees`} className="text-blue-500 hover:underline">✏️</Link>
+                                </td>
+                            </tr>
 
-                        {/* 入庫後時間制最大料金 */}
-                        <div>
-                            <Link href={`/locations/${location.id}/mfoets`} 
-                                className="inline-block bg-yellow-500 hover:bg-yellow-600 text-white py-2 px-4 rounded-md">
-                                入庫後時間制最大料金の詳細
-                            </Link>
-                            <div className="mt-4 space-y-4">
-                                {mfoets.map((fee) => (
-                                    <div key={fee.id} className="p-4 bg-gray-50 rounded-lg border-l-4 border-yellow-500 shadow-sm">
-                                        <h2 className="text-lg font-semibold text-gray-700">{fee.limit_time}時間</h2>
-                                        <p className="text-red-500 font-bold">最大: {fee.max_fee}円</p>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
+                            {/* 当日最大料金 */}
+                            <tr>
+                                <td className="border px-4 py-2">当日最大料金</td>
+                                <td className="border px-4 py-2 text-center" colSpan={timeRanges.length || 1}>
+                                    {mfods.length > 0 ? `${mfods[0].max_fee}円` : "―"}
+                                </td>
+                                <td className="border px-4 py-2">
+                                    <Link href={`/locations/${location.id}/mfods`} className="text-green-500 hover:underline">✏️</Link>
+                                </td>
+                            </tr>
+
+                            {/* 入庫後時間制最大料金 */}
+                            <tr>
+                            <td className="border px-4 py-2">入庫後時間制最大料金</td>
+                                <td className="border px-4 py-2 text-center" colSpan={timeRanges.length || 1}>
+                                    {mfoets.length > 0
+                                    ? `${mfoets[0].max_fee}円/${mfoets[0].limit_time}時間`
+                                    : "―"}
+                                </td>
+                                <td className="border px-4 py-2">
+                                    <Link href={`/locations/${location.id}/mfoets`} className="text-yellow-500 hover:underline">✏️</Link>
+                                </td>
+                            </tr>
+                        </tbody>
+                        </table>
                     </div>
                 </div>
 
@@ -230,7 +275,7 @@ const Show = (props) => {
                                 setCalculatedFee(parkingFee);
                             }}
                         >
-                            駐車料金を計算
+                            この条件で計算
                         </button>
                     </div>
                     <div>

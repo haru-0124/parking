@@ -15,7 +15,24 @@ const Index = (props) => {
   const [clickedLocation, setClickedLocation] = useState(defaultLocation);
   const [error, setError] = useState(null);
   const [latLng, setLatLng] = useState(null);
+  const [contextMenu, setContextMenu] = useState({
+    visible: false,
+    x: 0,
+    y: 0,
+    parkingId: null,
+  });
 
+  const handlePinClick = (parkingId, e) => {
+    e.domEvent.preventDefault(); // デフォルト右クリック抑制
+    setContextMenu({
+      visible: true,
+      x: e.domEvent.pageX,
+      y: e.domEvent.pageY,
+      parkingId,
+    });
+  };
+
+  
   useEffect(() => {
     const lastLocation = localStorage.getItem("lastLocation");
     if (lastLocation) {
@@ -77,7 +94,6 @@ const Index = (props) => {
       />
     </svg>
   );
-
 
   return (
     <Authenticated
@@ -163,7 +179,7 @@ const Index = (props) => {
                 <AdvancedMarker
                   key={parking.id}
                   position={{ lat: parseFloat(parking.latitude), lng: parseFloat(parking.longitude) }}
-                  onClick={() => router.visit(`/locations/${parking.id}`)}
+                  onClick={(e) => handlePinClick(parking.id, e)}
                 >
                   <Pin
                     background={isRegistered ? "#34A853" : "#4285F4"}
@@ -176,6 +192,45 @@ const Index = (props) => {
           </Map>
         </div>
       </APIProvider>
+      {contextMenu.visible && (
+        <div
+          className="absolute z-50 bg-white border shadow-lg rounded w-40"
+          style={{ top: contextMenu.y, left: contextMenu.x }}
+          onClick={() => setContextMenu({ ...contextMenu, visible: false })}
+        >
+          <ul className="text-sm text-gray-800">
+            <li
+              className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+              onClick={(e) => {
+                e.stopPropagation();
+                axios.post(`/locations/${contextMenu.parkingId}`, {
+                  parking_location_id: contextMenu.parkingId,
+                  user_id: props.auth.user.id,
+                }).then(() => {
+                  alert("駐車場を登録しました！");
+                  setContextMenu({ ...contextMenu, visible: false });
+                  router.visit('/dashboard')
+                }).catch((error) => {
+                  alert("登録に失敗しました。");
+                  console.error(error);
+                  setContextMenu({ ...contextMenu, visible: false });
+                });
+              }}
+            >
+              🚗 登録する
+            </li>
+            <li
+              className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+              onClick={(e) => {
+                e.stopPropagation();
+                router.visit(`/locations/${contextMenu.parkingId}`);
+              }}
+            >
+              🔍 詳細を見る
+            </li>
+          </ul>
+        </div>
+      )}
     </Authenticated>
   );
 };
