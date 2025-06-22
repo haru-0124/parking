@@ -8,8 +8,6 @@ use Inertia\Inertia;
 use App\Models\ParkingRecord;
 use App\Models\ParkingLocation;
 
-use App\Http\Controllers\ParkingRecordController;
-
 class ParkingRecordController extends Controller
 {
     public function store(Request $request, ParkingLocation $location)

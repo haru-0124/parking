@@ -4,7 +4,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
-
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -81,3 +80,4 @@ Route::get('/fetch-parking', function (Request $request) {
         'saved' => $results
     ]);
 });
+

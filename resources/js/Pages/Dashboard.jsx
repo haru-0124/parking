@@ -38,6 +38,7 @@ export default function Dashboard({ auth, parkingRecords }) {
             chartData[index] = {
                 labels: result.labels,
                 data: result.data,
+                ymax: result.data.every(v => v === 0) ? 100 : undefined,
             };
             nextIncrease[index] = result.nextIncreaseMinutes;
             currentFee[index] = result.currentFee;
@@ -47,7 +48,6 @@ export default function Dashboard({ auth, parkingRecords }) {
         setNextIncreaseMinutesList(nextIncrease);
         setCurrentFeeList(currentFee);
     }, [parkingRecords, now]);
-    console.log(nextIncreaseMinutesList)
 
     return (
         <AuthenticatedLayout user={auth.user} header={
@@ -72,46 +72,77 @@ export default function Dashboard({ auth, parkingRecords }) {
                                 <ul className="list-disc pl-5 space-y-1">
                                     {parkingRecords.map((record, index) => (
                                         <li key={index}>
-                                            {record.parking_location.name ?? '（名称未登録）'}（{new Date(record.created_at).toLocaleString()}）
-                                            <div className="mt-4">
-                                                <Link href={`/locations/${record.parking_location_id}`} className="text-blue-500">駐車場情報へ</Link>
-                                            </div>
-                                            <button
-                                                className="p-2 bg-red-500 text-white rounded-md hover:bg-red-600"
-                                                onClick={ () => router.delete(`/locations/${record.parking_location_id}/unregister`)}
-                                            >
-                                                駐車を終了する
-                                            </button>
-                                            <p>現在の料金は{currentFeeList[index]}円です</p>
-                                            {nextIncreaseMinutesList[index] !== null ? (
-                                                <p>あと {nextIncreaseMinutesList[index]} 分以内で料金が上がります</p>
-                                            ) : (
-                                                <p>今後24時間は料金が変わりません</p>
-                                            )}
-                                            {chartDataList[index] && (
-                                                <div className="my-4">
-                                                    <Line
-                                                        data={{
-                                                            labels: chartDataList[index].labels,
-                                                            datasets: [{
+                                            <div className="grid grid-cols-1 md:grid-cols-[1fr_800px] items-start gap-2">
+                                                {/* 左側：テキストやリンクなど */}
+                                                <div className="flex-1 space-y-2">
+                                                <div>
+                                                    {record.parking_location.name ?? '（名称未登録）'}
+                                                </div>
+                                                <div>
+                                                    入庫時刻：{new Date(record.created_at).toLocaleString()}
+                                                </div>
+                                                <Link href={`/locations/${record.parking_location_id}`} className="text-blue-500">
+                                                    詳細
+                                                </Link>
+                                                <button
+                                                    className="ml-2 p-2 bg-red-500 text-white rounded-md hover:bg-red-600"
+                                                    onClick={() => router.delete(`/locations/${record.parking_location_id}/unregister`)}
+                                                >
+                                                    出庫
+                                                </button>
+                                                <p>現在の料金は{currentFeeList[index]}円です</p>
+                                                {nextIncreaseMinutesList[index] !== null ? (
+                                                    <p>あと {nextIncreaseMinutesList[index]} 分以内で料金が上がります</p>
+                                                ) : (
+                                                    <p>今後24時間は料金が変わりません</p>
+                                                )}
+                                                </div>
+
+                                                {/* 右側：グラフ */}
+                                                {chartDataList[index] && (
+                                                    <div className="w-full md:w-[800px] h-[250px]">
+                                                        <Line
+                                                            data={{
+                                                                labels: chartDataList[index].labels,
+                                                                datasets: [{
                                                                 label: '駐車料金（円）',
                                                                 data: chartDataList[index].data,
                                                                 borderColor: 'rgba(75,192,192,1)',
                                                                 backgroundColor: 'rgba(75,192,192,0.2)',
-                                                                tension: 0.1,
-                                                            }]
-                                                        }}
+                                                                tension: 0.3,
+                                                                pointRadius: 4,
+                                                                pointHoverRadius: 6,
+                                                                }],
+                                                            }}
                                                         options={{
-                                                            scales: {
+                                                            responsive: true,
+                                                            maintainAspectRatio: false,
+                                                            plugins: {
+                                                                legend: { display: false },
+                                                                title: {
+                                                                    display: true,
+                                                                    text: '駐車料金の推移',
+                                                                    font: { size: 18 },
+                                                                    padding: { top: 10, bottom: 20 },
+                                                                },
+                                                                },
+                                                                scales: {
+                                                                x: {
+                                                                    ticks: { autoSkip: true, maxTicksLimit: 10 },
+                                                                    title: { display: true, text: '経過した時間' },
+                                                                },
                                                                 y: {
                                                                     beginAtZero: true,
-                                                                    min: 0, // ← 下限を0に固定
-                                                                }
-                                                            }
+                                                                    max: chartDataList[index].ymax,
+                                                                    ticks: { stepSize: 100 },
+                                                                    title: { display: true, text: '料金（円）' },
+                                                                },
+                                                            },
                                                         }}
                                                     />
                                                 </div>
-                                            )}
+                                                )}
+                                            </div>
                                         </li>
                                     ))}
                                 </ul>
